@@ -1,8 +1,70 @@
-import React from 'react'
+import React, { useState } from 'react'
+import * as yup from 'yup'
+import { Formik } from 'formik'
+import InputField from './InputField'
+import { RiEyeCloseLine, RiEyeLine, RiEyeOffLine } from '@remixicon/react'
+import pic from '../assets/images/Login.png'
 
 const Login = () => {
+  const [togglePass, setTogglePass] = useState(false)
+  const loginScheme = yup.object().shape({
+    email: yup.string().email('Please use a valid email').required('Please provide an email'),
+    password: yup.string().required('Please provide a password')
+  })
   return (
-    <div>Login</div>
+    <div className='bg-white flex-1 flex flex-col px-6'>
+      <div className='flex justify-center items-center h-full'>
+        <section className='flex-1 h-screen flex'>
+          {/* images */} 
+          <div className='flex flex-1 relative justify-center items-center'>
+            <div className='relative flex'> 
+              <div className='h-[22rem] w-[22rem] bg-[#B4E9FF] rounded-full absolute mt-20 ml-14 z-0'></div>
+              <div className='h-[35rem] w-[35rem] bg-yellow-100 rounded-full mt-48 ml-48 z-20'></div>
+            </div>
+            <img src={pic} className='z-20 absolute w-[36rem]'/>
+          </div>
+        </section>
+
+        {/* FORMS */}
+        <section className='flex-1 font-poppins justify-center flex'>
+          <div className='flex flex-col gap-y-10 w-1/2'>
+            <div className='flex flex-col gap-3'>
+              <h1 className='font-semibold text-4xl'>Welcome back</h1>
+              <p className='text-lg'>Welcome back! Please enter your details</p>
+            </div>
+            <div className='w-full'>
+              <Formik
+                initialValues={{email: '', password: ''}}
+                validationSchema={loginScheme}
+                onSubmit={(values, actions) => {
+
+                }}
+              >
+                {(props) => (
+                  <div className='flex flex-col gap-y-9'>
+                    <section className='flex flex-col gap-y-9'>
+                      <InputField type={'text'} placeholder={'Email'} onChange={props.handleChange('email')} onBlur={props.handleBlur('email')}/>
+                      <div className='flex'>
+                        <InputField type={ togglePass ? 'text' : 'password'} placeholder={'Password'} onChange={props.handleChange('password')} onBlur={props.handleBlur('password')}/>
+                        {togglePass ? <RiEyeLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setTogglePass(false)}/> : <RiEyeCloseLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setTogglePass(true)}/>}
+                      </div>
+                      <div className='flex justify-end'>
+                        <a href="/forgot-pass" className='justify-self-end underline'>Forgot password</a>
+                      </div>
+                    </section> 
+                    <button type="submit" className='bg-black text-white p-4 rounded-md mb-4'>Log In</button>
+                    <div className='flex gap-x-1 items-center justify-center'>
+                      <p>Don't have an account? </p>
+                      <a href="/sign-up" className='font-medium underline'> Sign up for free</a>
+                    </div>
+                  </div>
+                )}
+              </Formik>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
   )
 }
 
