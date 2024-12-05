@@ -61,6 +61,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',  # Bcrypt with SHA-256
+    'django.contrib.auth.hashers.BCryptPasswordHasher',        # Standard Bcrypt (less common)
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',        # Fallback hashers
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+]
+
 ROOT_URLCONF = 'my_project.urls'
 
 TEMPLATES = [

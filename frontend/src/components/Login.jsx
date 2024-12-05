@@ -3,13 +3,16 @@ import * as yup from 'yup'
 import { Formik } from 'formik'
 import InputField from './InputField'
 import { RiEyeCloseLine, RiEyeLine, RiEyeOffLine } from '@remixicon/react'
+import { useNavigate } from "react-router-dom";
 import pic from '../assets/images/Login.png'
 import logo from '../assets/images/logo.png'
+import axios from 'axios'
 
 const Login = () => {
   const [togglePass, setTogglePass] = useState(false)
+  const navigate = useNavigate()
   const loginScheme = yup.object().shape({
-    email: yup.string().email('Please use a valid email').required('Please provide an email'),
+    email: yup.string().required('Please provide an email'),
     password: yup.string().required('Please provide a password')
   })
   return (
@@ -44,8 +47,20 @@ const Login = () => {
               <Formik
                 initialValues={{email: '', password: ''}}
                 validationSchema={loginScheme}
-                onSubmit={(values, actions) => {
+                onSubmit={async(values, actions) => {
+                  const data = {
+                    usermail: values.email,
+                    password: values.password
+                  }
 
+                  try {
+                    const response = await axios.post('http://127.0.0.1:8000/api/login', data)
+                    if(response.status == 200){
+                      navigate('/home')
+                    }
+                  } catch (error) {
+                    console.log(error)
+                  }
                 }}
               >
                 {(props) => (
@@ -66,7 +81,7 @@ const Login = () => {
                         <a href="/forgot-pass" className='justify-self-end underline'>Forgot password</a>
                       </div>
                     </section> 
-                    <button type="submit" className='bg-black text-white p-4 rounded-md mb-4 hover:bg-gray-700'>Log In</button>
+                    <button type="submit" className='bg-black text-white p-4 rounded-md mb-4 hover:bg-gray-700' onClick={props.handleSubmit}>Log In</button>
                     <div className='flex gap-x-1 items-center justify-center'>
                       <p>Don't have an account? </p>
                       <a href="/sign-up" className='font-medium underline'> Sign up for free</a>

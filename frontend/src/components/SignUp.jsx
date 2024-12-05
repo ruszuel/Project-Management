@@ -3,12 +3,14 @@ import axios from 'axios'
 import * as yup from 'yup'
 import {Formik} from 'formik'
 import InputField from './InputField'
+import { useNavigate } from "react-router-dom";
 import pic from '../assets/images/Register.png'
 import { RiEyeCloseLine, RiEyeLine, RiEyeOffLine } from '@remixicon/react'
 
 const SignUp = () => {
   const [togglePass, setTogglePass] = useState(false)
   const [confP, setConP] = useState(false)
+  const navigate = useNavigate()
   const signUpSchema = yup.object().shape({
     firstname: yup.string().max(20, 'You have reached the maximum limit').required(),
     lastname: yup.string().max(20, 'You have reached the maximum limit').required() ,
@@ -32,8 +34,23 @@ const SignUp = () => {
             <Formik
               initialValues={{firstname: '', lastname: '', email: '', username: '', password: '', confPass: ''}}
               validationSchema={signUpSchema}
-              onSubmit={(val, action) => {
+              onSubmit={async (val, action) => {
+                const data = {
+                  firstname: val.firstname,
+                  lastname: val.lastname,
+                  email: val.email,
+                  username: val.username,
+                  password: val.confPass
+                }
 
+                try{
+                  const insert = await axios.post('http://127.0.0.1:8000/api/submit', data)
+                  if(insert.status == 200){
+                    navigate('/')
+                  }
+                }catch(err){
+                  console.log(err)
+                }
               }}
             >
             {(props) => (
@@ -73,7 +90,7 @@ const SignUp = () => {
                     </div> 
                   </div>
                 </section>
-                <button type="submit" className='bg-black text-white p-4 rounded-md mb-4 hover:bg-gray-700'>Register</button>
+                <button type="submit" className='bg-black text-white p-4 rounded-md mb-4 hover:bg-gray-700' onClick={props.handleSubmit}>Register</button>
                 <div className='flex gap-x-1 items-center justify-center'>
                   <p>Already have an account? </p>
                   <a href="/" className='font-medium underline'> Log in</a>

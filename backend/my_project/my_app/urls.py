@@ -5,5 +5,6 @@ from .views import *
 urlpatterns = [
     path('', home),
     path('api/example', example_view),
-    path('api/submit', example_post),
+    path('api/submit', create_user),
+    path('api/login', login),
 ]
