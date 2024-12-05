@@ -15,7 +15,7 @@ const SignUp = () => {
     email: yup.string().email().required(),
     username: yup.string().max(20).required(),
     password: yup.string().min(8).max(20).required(),
-    confPass: yup.string().oneOf([yup.ref('password'), null]).required()
+    confPass: yup.string().oneOf([yup.ref('password'), null], "Password doesn't match").required()
   })
 
   return (
