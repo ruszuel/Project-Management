@@ -17,6 +17,7 @@ ALLOWED_HOSTS = []
 
 CORS_ALLOWED_ORIGINS  = [
     'http://localhost:5173',
+    'http://127.0.0.1:5173',
 ]
 # Application definition
 
@@ -62,9 +63,9 @@ REST_FRAMEWORK = {
 }
 
 PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',  # Bcrypt with SHA-256
-    'django.contrib.auth.hashers.BCryptPasswordHasher',        # Standard Bcrypt (less common)
-    'django.contrib.auth.hashers.PBKDF2PasswordHasher',        # Fallback hashers
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',  
+    'django.contrib.auth.hashers.BCryptPasswordHasher',        
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',        
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
 ]
 

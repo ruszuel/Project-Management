@@ -50,3 +50,16 @@ def login(req):
         return Response(status=200)
     else:
         return Response(status=404)
+    
+
+@api_view(['GET'])
+def retrieve_user(req):
+
+    try:
+        users = Project.objects.all().values('username', 'email')
+        user_list = []
+
+        user_list = [{'username': user['username'], 'email': user['email']} for user in users]
+        return Response(user_list, status=200)
+    except Exception as e:
+        print(e)

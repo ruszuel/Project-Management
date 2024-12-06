@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import * as yup from 'yup'
 import {Formik} from 'formik'
@@ -10,15 +10,24 @@ import { RiEyeCloseLine, RiEyeLine, RiEyeOffLine } from '@remixicon/react'
 const SignUp = () => {
   const [togglePass, setTogglePass] = useState(false)
   const [confP, setConP] = useState(false)
+  const [users, setUsers] = useState([])
   const navigate = useNavigate()
   const signUpSchema = yup.object().shape({
     firstname: yup.string().max(20, 'You have reached the maximum limit').required(),
     lastname: yup.string().max(20, 'You have reached the maximum limit').required() ,
-    email: yup.string().email().required(),
-    username: yup.string().max(20).required(),
+    email: yup.string().email().required().test('is-existing-email', 'Email already exist', (val) => {return !users.map(values => values.email).includes(val)}),
+    username: yup.string().max(20).required().test('is-existing-username', 'Username already exist', (val) => {return !users.map(values => values.username).includes(val)}),
     password: yup.string().min(8).max(20).required(),
     confPass: yup.string().oneOf([yup.ref('password'), null], "Password doesn't match").required()
   })
+
+  useEffect(() => {
+    const checkUSer = async () => {
+      const users = await axios.get('http://127.0.0.1:8000/api/retrieve')
+      setUsers(users.data)
+    }
+    checkUSer()
+  }, [])
 
   return (
    <div className='bg-white flex-1 flex flex-col px-6'>
