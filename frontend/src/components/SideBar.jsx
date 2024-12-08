@@ -7,9 +7,9 @@ import SidebarModal from '../reusable/SidebarModal'
 const SideBar = () => {
     const [visible, setVisible] = useState(false)
   return (
-    <div className='flex bg-[#C0C8CA] flex-1 h-screen font-poppins'>
+    <div className='flex flex-1 h-screen font-poppins'>
         {/* main container */}
-        <aside className='flex-[0.15] bg-white flex flex-col pb-2 border-r border-gray-400 relative'>
+        <aside className='flex-1 bg-white flex flex-col pb-2 border-r border-gray-400 relative'>
             {/* sidebar */}
             <section className='flex-1 flex flex-col gap-y-8'>
                 <div className='flex items-center px-5 pt-5 gap-2'>
@@ -43,7 +43,7 @@ const SideBar = () => {
                 </div>
             </div>
             {visible &&
-                <div className='w-3/5 h-fit bg-white absolute bottom-2 -right-40 rounded-md z-10 shadow-lg p-1'>
+                <div className='w-3/4 h-fit bg-white absolute bottom-2 ml-60 rounded-md z-10 shadow-lg p-1'>
                     <SidebarModal icon={'RiUser3Line'} item={'View profile'}/>  
                     <SidebarModal icon={'RiSettings4Line'} item={'Account Settings'}/>  
                     <SidebarModal icon={'RiLogoutBoxRLine'} item={'Log out '}/>  
