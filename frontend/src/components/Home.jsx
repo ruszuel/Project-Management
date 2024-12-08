@@ -1,8 +1,16 @@
 import React from 'react'
+import SideBar from './SideBar'
 
 const Home = () => {
   return (
-    <div>Home</div>
+    <div>
+      <aside>
+        <SideBar/>
+      </aside>
+      <main>
+
+      </main>
+    </div>
   )
 }
 

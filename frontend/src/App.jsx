@@ -4,6 +4,7 @@ import  Home  from './components/Home'
 import Login from './components/Login'
 import SignUp from './components/SignUp'
 import ForgotPass from './components/ForgotPass'
+import SideBar from './components/SideBar'
 function App() {
   return (
     <div>
@@ -12,6 +13,7 @@ function App() {
         <Route path='/sign-up' element={<SignUp/>}/>
         <Route path='/home' element={<Home/>}/>
         <Route path='/forgot-pass' element={<ForgotPass/>}/>
+        <Route path='/sidebar' element={<SideBar/>}/>
       </Routes>
     </div>
   )
