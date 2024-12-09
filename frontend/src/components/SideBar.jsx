@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import logo from '../assets/images/logo.png'
 import {RiCommandLine, RiExpandUpDownLine, RiTeamLine, RiUser3Line} from '@remixicon/react'
 import SidebarItem from '../reusable/SidebarItem'
 import SidebarModal from '../reusable/SidebarModal'
-import { useAuth } from '../Context'
+import { useAuth, changePass } from '../Context'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 const SideBar = () => {
     const [visible, setVisible] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
-    const { logout, data } = useAuth()
+    const { logout, data, del, setDel} = useAuth()
     const navigate = useNavigate()
 
   return (
@@ -51,7 +51,7 @@ const SideBar = () => {
             {visible &&
                 <div className='w-3/4 h-fit bg-white absolute bottom-2 ml-60 rounded-md z-10 shadow-lg p-1'>
                     <SidebarModal icon={'RiUser3Line'} item={'View profile'}/>  
-                    <SidebarModal icon={'RiSettings4Line'} item={'Account Settings'}/>  
+                    <SidebarModal icon={'RiSettings4Line'} item={'Account Settings'} onClick={() => {navigate('/profile'); setVisible(false)}}/>  
                     <SidebarModal icon={'RiLogoutBoxRLine'} item={'Log out'} onClick={() => {setIsOpen(true); setVisible(false)}}/>  
                 </div>
             }
@@ -67,7 +67,20 @@ const SideBar = () => {
                     </div>
                 </div>
             </div>
-        }   
+        }  
+        
+        {del && 
+            <div className='flex flex-col justify-center items-center w-screen h-screen bg-black/50 absolute z-30'>
+                <div className='bg-white p-5 rounded-md w-1/4 flex flex-col gap-2'>
+                    <p className='text-lg font-semibold'>Are you sure you want to delete your account?</p>
+                    <p className='text-sm font-light text-gray-400'>Your account will be deleted permanently. This action is irreversible.</p>
+                    <div className='flex items-center justify-end gap-2'>
+                        <p className='px-3 py-2 border-gray-400/50 border rounded-md hover:bg-gray-200/50 text-sm cursor-pointer' onClick={() => setDel(false)}>No</p>
+                        <p className='px-3 py-2 bg-[#1A2D42] text-white rounded-md hover:bg-[#D4D8DD] text-sm cursor-pointer' onClick={() => {setDel(false); logout(); <Navigate to={'/'}/>}}>Yes</p>
+                    </div>
+                </div>
+            </div> 
+        }
     </div>
   )
 }

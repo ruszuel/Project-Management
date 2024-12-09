@@ -8,6 +8,7 @@ import React, {createContext, useState, useContext, useEffect} from 'react'
       return storedUser ? storedUser : null;
     })
     const [data, setData] = useState([])
+    const [del, setDel] = useState(false)
 
     const login = () => {
       const items = JSON.parse(localStorage.getItem('user'))
@@ -28,7 +29,7 @@ import React, {createContext, useState, useContext, useEffect} from 'react'
 
     // const isAuthenticated = user
     return(
-      <AuthContext.Provider value={{login, user, data, logout}}>
+      <AuthContext.Provider value={{login, user, data, logout, del, setDel}}>
         {children}
       </AuthContext.Provider>
     )
@@ -38,3 +39,4 @@ import React, {createContext, useState, useContext, useEffect} from 'react'
     return useContext(AuthContext)
   }
   
+  export const changePass = createContext(false)

@@ -7,6 +7,7 @@ import ForgotPass from './components/ForgotPass'
 import ProtectedRoutes from './ProtectedRoutes'
 import Layout from './Layout'
 import Members from './components/Members'
+import Profile from './components/Profile'
 function App() {
   return (
     <div>
@@ -18,6 +19,7 @@ function App() {
             <Route path='/home' element={<Home/>}/>
             <Route path='/forgot-pass' element={<ForgotPass/>}/>
             <Route path='/members' element={<Members/>}/>
+            <Route path='/profile' element={<Profile/>}/>
           </Route>
         </Route>
       </Routes>
