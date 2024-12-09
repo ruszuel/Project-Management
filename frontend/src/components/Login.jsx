@@ -7,14 +7,18 @@ import { useNavigate } from "react-router-dom";
 import pic from '../assets/images/Login.png'
 import logo from '../assets/images/logo.png'
 import axios from 'axios'
+import { useAuth } from '../Context'
 
 const Login = () => {
   const [togglePass, setTogglePass] = useState(false)
   const navigate = useNavigate()
+  const {login} = useAuth()
+
   const loginScheme = yup.object().shape({
     email: yup.string().required('Please provide an email'),
     password: yup.string().required('Please provide a password')
   })
+
   return (
     <div className='bg-white flex-1 flex flex-col px-6'>
       <div className='flex justify-center items-center h-full'>
@@ -55,7 +59,10 @@ const Login = () => {
 
                   try {
                     const response = await axios.post('http://127.0.0.1:8000/api/login', data)
-                    if(response.status == 200){
+                    console.log('response data', response.data)
+                    if(response.status === 200){
+                      localStorage.setItem('user', JSON.stringify(response.data))
+                      login()
                       navigate('/home')
                     }
                   } catch (error) {
@@ -68,7 +75,7 @@ const Login = () => {
                     <section className='flex flex-col gap-y-9'>
                       <div>
                         <p className='text-red-400 text-sm justify-self-end'>{props.errors.email && props.touched.email && props.errors.email}</p>
-                        <InputField type={'text'} placeholder={'Email'} onChange={props.handleChange('email')} onBlur={props.handleBlur('email')}/>
+                        <InputField type={'text'} placeholder={'Email or username'} onChange={props.handleChange('email')} onBlur={props.handleBlur('email')}/>
                       </div>
                       <div>
                         <p className='text-red-400 justify-self-end mb-5 text-sm'>{props.errors.password && props.touched.password && props.errors.password}</p>
