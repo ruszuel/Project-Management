@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -40,14 +41,17 @@ def login(req):
 
     try:
         user = Project.objects.get(username=usermail)
+        print(user)
     except Project.DoesNotExist:
         try:
             user = Project.objects.get(email=usermail)
+            print(user)
         except Project.DoesNotExist:
             return Response(status=404)
         
     if check_password(data.get('password'), user.password):
-        return Response(status=200)
+        user_data = model_to_dict(user, fields=['firstname', 'lastname', 'username', 'email'])
+        return Response(user_data,status=200)
     else:
         return Response(status=404)
     
