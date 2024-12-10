@@ -9,6 +9,7 @@ import React, {createContext, useState, useContext, useEffect} from 'react'
     })
     const [data, setData] = useState([])
     const [del, setDel] = useState(false)
+    const [changeP, setChangeP] = useState(false)
 
     const login = () => {
       const items = JSON.parse(localStorage.getItem('user'))
@@ -29,7 +30,7 @@ import React, {createContext, useState, useContext, useEffect} from 'react'
 
     // const isAuthenticated = user
     return(
-      <AuthContext.Provider value={{login, user, data, logout, del, setDel}}>
+      <AuthContext.Provider value={{login, user, data, logout, del, setDel, changeP, setChangeP}}>
         {children}
       </AuthContext.Provider>
     )
