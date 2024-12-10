@@ -7,6 +7,7 @@ import { useAuth } from '../Context'
 import { Navigate, useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
 import { Formik } from 'formik'
+import axios from 'axios'
 
 const SideBar = () => {
     const [visible, setVisible] = useState(false)
@@ -20,7 +21,7 @@ const SideBar = () => {
     const changePassScheme = yup.object().shape({
         oldPass: yup.string().required('This is a required field').min(8),
         newPass: yup.string().min(8).required('This is a required field'),
-        confirmPass: yup.string().oneOf([yup.ref('newPass'), null]).required('This is a required field')
+        confirmPass: yup.string().oneOf([yup.ref('newPass'), null], 'Password doesn\'t match').required('This is a required field')
     })
 
   return (
@@ -99,8 +100,24 @@ const SideBar = () => {
                     <Formik
                         initialValues={{oldPass: '', newPass: '', confirmPass: ''}}
                         validationSchema={changePassScheme}
-                        onSubmit={(val) => {
+                        onSubmit={async (val, action) => {
+                            const datas = {
+                                username: data.username,
+                                oldPass: val.oldPass,
+                                password: val.confirmPass
+                            }
 
+                            try {
+                                const res = await axios.post('http://127.0.0.1:8000/api/change_pass', datas)
+                                if(res.status && res.status === 200){
+                                    setChangeP(false)
+                                    logout()
+                                }
+                            } catch (error) {
+                                if(error.response.status === 400)
+                                    action.setFieldError('oldPass', 'Incorrect password. Please try again.')
+                                    console.log('boss mali')
+                            }
                         }}
                     >
                         {(props) => (

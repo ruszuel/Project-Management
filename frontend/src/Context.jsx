@@ -1,21 +1,28 @@
+import axios from 'axios';
 import React, {createContext, useState, useContext, useEffect} from 'react'
 
   const AuthContext = createContext();
 
   export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
-      const storedUser = localStorage.getItem('user');
-      return storedUser ? storedUser : null;
+      const storedUser = JSON.parse(localStorage.getItem('user'))
+      return storedUser ? storedUser.username : null;
     })
     const [data, setData] = useState([])
     const [del, setDel] = useState(false)
     const [changeP, setChangeP] = useState(false)
 
-    const login = () => {
+    const login = async () => {
       const items = JSON.parse(localStorage.getItem('user'))
       if(items){
         setUser(items.username)
-        setData(items)
+      }
+
+      try {
+        const res = await axios.post('http://127.0.0.1:8000/api/profile', {username: items.username})
+        setData(res.data)
+      } catch (error) {
+        
       }
     }
 
