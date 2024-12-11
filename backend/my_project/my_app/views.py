@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import *
 from django.contrib.auth.hashers import make_password, check_password
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
 # Create your views here.
 def home(req):
@@ -29,7 +31,7 @@ def create_user(req):
             password = hashed_pass
         )
         user.save()
-        return Response({"message": "Data received successfully", "data": data}, status=status.HTTP_200_OK)
+        return Response({"message": "Data received successfully", "data": data}, status=status.HTTP_201_CREATED)
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -116,3 +118,17 @@ def update_profile(req):
         return Response(status=200)
     except Exception:
         pass
+
+@api_view(['POST'])
+@csrf_exempt
+def delete_acc(req):
+    data = req.data
+
+    try:
+        user = Project.objects.get(username = data.get('username'))
+        user.delete()
+        return Response(status=200)
+    except Exception as e:
+        messages.error(req, str(e))
+        print(e)
+        return Response(status=404)

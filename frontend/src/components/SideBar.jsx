@@ -24,6 +24,23 @@ const SideBar = () => {
         confirmPass: yup.string().oneOf([yup.ref('newPass'), null], 'Password doesn\'t match').required('This is a required field')
     })
 
+    const deleteAccount = async () => {
+        console.log(data.username)
+        const datass = {
+            username: data.username
+        }
+        try {
+            const res = await axios.post('http://127.0.0.1:8000/api/delete_account', datass)
+            if(res.status && res.status === 200){
+                setDel(false)
+                logout()
+                navigate('/')
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
   return (
     <div className='flex w-[15.3rem] h-screen font-poppins'>
         {/* main container */}
@@ -88,7 +105,7 @@ const SideBar = () => {
                     <p className='text-sm font-light text-gray-400'>Your account will be deleted permanently. This action is irreversible.</p>
                     <div className='flex items-center justify-end gap-2'>
                         <p className='px-3 py-2 border-gray-400/50 border rounded-md hover:bg-gray-200/50 text-sm cursor-pointer' onClick={() => setDel(false)}>No</p>
-                        <p className='px-3 py-2 bg-red-900 text-white rounded-md hover:bg-[#D4D8DD] text-sm cursor-pointer' onClick={() => {setDel(false); logout(); <Navigate to={'/'}/>}}>Yes</p>
+                        <p className='px-3 py-2 bg-red-900 text-white rounded-md hover:bg-[#D4D8DD] text-sm cursor-pointer' onClick={() => deleteAccount()}>Yes</p>
                     </div>
                 </div>
             </div> 

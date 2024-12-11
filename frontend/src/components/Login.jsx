@@ -15,7 +15,7 @@ const Login = () => {
   const {login} = useAuth()
 
   const loginScheme = yup.object().shape({
-    email: yup.string().required('Please provide an email'),
+    email: yup.string().required('Please provide an email or username'),
     password: yup.string().required('Please provide a password')
   })
 
@@ -67,18 +67,26 @@ const Login = () => {
                     }
                   } catch (error) {
                     console.log(error)
+                    if(error.response.status === 404){
+                      actions.setFieldError('email', 'Invalid credentials')
+                      actions.setFieldError('password', 'Invalid credentials')
+                    }
                   }
                 }}
               >
                 {(props) => (
                   <div className='flex flex-col gap-y-10'>
-                    <section className='flex flex-col gap-y-9'>
-                      <div>
-                        <p className='text-red-400 text-sm justify-self-end'>{props.errors.email && props.touched.email && props.errors.email}</p>
+                    <section className='flex flex-col gap-y-5'>
+                      <div className='flex flex-col'>
+                        <div className='flex justify-end h-6'>
+                          <p className={`text-red-400 text-sm justify-self-end ${props.errors.email && props.touched.email ? 'visible' : 'invisible'}`}>{props.errors.email && props.touched.email && props.errors.email}</p>
+                        </div>  
                         <InputField type={'text'} placeholder={'Email or username'} onChange={props.handleChange('email')} onBlur={props.handleBlur('email')}/>
                       </div>
-                      <div>
-                        <p className='text-red-400 justify-self-end mb-5 text-sm'>{props.errors.password && props.touched.password && props.errors.password}</p>
+                      <div className='flex flex-col'>
+                        <div className='flex justify-end items-start h-6'>
+                          <p className={`text-red-400 text-sm justify-self-end ${props.errors.password && props.touched.password ? 'visible' : 'invisible'}`}>{props.errors.password && props.touched.password && props.errors.password}</p>
+                        </div> 
                         <div className='flex'>
                           <InputField type={ togglePass ? 'text' : 'password'} placeholder={'Password'} onChange={props.handleChange('password')} onBlur={props.handleBlur('password')}/>
                           {togglePass ? <RiEyeLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setTogglePass(false)}/> : <RiEyeCloseLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setTogglePass(true)}/>}

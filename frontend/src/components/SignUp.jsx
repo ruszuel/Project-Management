@@ -54,7 +54,7 @@ const SignUp = () => {
 
                 try{
                   const insert = await axios.post('http://127.0.0.1:8000/api/submit', data)
-                  if(insert.status == 200){
+                  if(insert.status == 201){
                     navigate('/')
                   }
                 }catch(err){
@@ -65,33 +65,45 @@ const SignUp = () => {
             {(props) => (
               <div className='flex flex-col gap-y-10'>
                 {/* FORMS */}
-                <section className='flex flex-col gap-y-9'>
-                  <div className='flex flex-col gap-y-9 w-full'>
+                <section className='flex flex-col'>
+                  <div className='flex flex-col gap-y-6 w-full'>
                     <div>
-                      <p className='text-red-400 text-sm justify-self-end'>{props.errors.firstname && props.touched.firstname && props.errors.firstname}</p>
+                      <div className='flex justify-end h-6'>
+                        <p className={`text-red-400 text-sm justify-self-end ${props.errors.firstname && props.touched.firstname ? 'visible' : 'invisible'}`}>{props.errors.firstname && props.touched.firstname && props.errors.firstname}</p>
+                        </div> 
                       <InputField type={'text'} placeholder={'Firstname'} onChange={props.handleChange('firstname')} onBlur={props.handleBlur('firstname')}/>
                     </div>
                     <div>
-                      <p className='text-red-400 text-sm justify-self-end'>{props.errors.lastname && props.touched.lastname && props.errors.lastname}</p>
+                      <div className='flex justify-end h-6'>
+                        <p className={`text-red-400 text-sm justify-self-end ${props.errors.lastname && props.touched.lastname ? 'visible' : 'invisible'}`}>{props.errors.lastname && props.touched.lastname && props.errors.lastname}</p>
+                      </div> 
                       <InputField type={'text'} placeholder={'Lastname'} onChange={props.handleChange('lastname')} onBlur={props.handleBlur('lastname')}/>
                     </div>
                     <div>
-                      <p className='text-red-400 text-sm justify-self-end'>{props.errors.email && props.touched.email && props.errors.email}</p>
+                      <div className='flex justify-end h-6'>
+                        <p className={`text-red-400 text-sm justify-self-end ${props.errors.email && props.touched.email ? 'visible' : 'invisible'}`}>{props.errors.email && props.touched.email && props.errors.email}</p>
+                      </div> 
                       <InputField type={'email'} placeholder={'Email'} onChange={props.handleChange('email')} onBlur={props.handleBlur('email')}/>
                     </div>
                     <div>
-                      <p className='text-red-400 text-sm justify-self-end'>{props.errors.username && props.touched.username && props.errors.username}</p>
+                      <div className='flex justify-end h-6'>
+                        <p className={`text-red-400 text-sm justify-self-end ${props.errors.username && props.touched.username ? 'visible' : 'invisible'}`}>{props.errors.username && props.touched.username&& props.errors.username}</p>
+                      </div> 
                       <InputField type={'text'} placeholder={'Username'} onChange={props.handleChange('username')} onBlur={props.handleBlur('username')}/>
                     </div>
                     <div>
-                      <p className='text-red-400 text-sm justify-self-end'>{props.errors.password && props.touched.password && props.errors.password}</p>
+                      <div className='flex justify-end h-6'>
+                        <p className={`text-red-400 text-sm justify-self-end ${props.errors.password && props.touched.password ? 'visible' : 'invisible'}`}>{props.errors.password && props.touched.password && props.errors.password}</p>
+                      </div> 
                       <div className='flex'>
                           <InputField type={ togglePass ? 'text' : 'password'} placeholder={'Password'} onChange={props.handleChange('password')} onBlur={props.handleBlur('password')}/>
                           {togglePass ? <RiEyeLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setTogglePass(false)}/> : <RiEyeCloseLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setTogglePass(true)}/>}
                         </div>
                     </div>   
                     <div>
-                      <p className='text-red-400 text-sm justify-self-end'>{props.errors.confPass && props.touched.confPass && props.errors.confPass}</p>
+                    <div className='flex justify-end h-6'>
+                        <p className={`text-red-400 text-sm justify-self-end ${props.errors.confPass && props.touched.confPass ? 'visible' : 'invisible'}`}>{props.errors.confPass && props.touched.confPass && props.errors.confPass}</p>
+                      </div> 
                       <div className='flex'>
                           <InputField type={ confP ? 'text' : 'password'} placeholder={'Re-enter password'} onChange={props.handleChange('confPass')} onBlur={props.handleBlur('confPass')}/>
                           {confP ? <RiEyeLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setConP(false)}/> : <RiEyeCloseLine size={24} color='gray' className='-ml-8 cursor-pointer' onClick={() => setConP(true)}/>}
