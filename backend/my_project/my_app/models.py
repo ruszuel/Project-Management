@@ -14,20 +14,6 @@ class Project(models.Model):
         db_table = 'users'
         managed = False
 
-class Tasks(models.Model):
-    task_id = models.AutoField(primary_key=True)
-    feature = models.CharField(max_length=255)
-    status = models.CharField(max_length=255)
-    assigned = models.CharField(max_length=255)
-    sprint = models.IntegerField()
-    priority = models.CharField(max_length=255)
-    project = models.CharField(max_length=255)
-    deadline = models.DateField()
-
-    class Meta:
-        db_table = 'tasks'
-        managed = False
-
 class Proj(models.Model):
     project_id = models.AutoField(primary_key=True, null=False)
     project_title = models.CharField(max_length=100, null=False)
@@ -49,4 +35,18 @@ class Members(models.Model):
 
     class Meta:
         db_table = 'members'
+        managed = False
+
+class Tasks(models.Model):
+    task_id = models.AutoField(primary_key=True)
+    project = models.ForeignKey(Proj, on_delete=models.CASCADE)
+    feature = models.CharField(max_length=255)
+    status = models.CharField(max_length=255)
+    assigned = models.CharField(max_length=255)
+    sprint = models.IntegerField()
+    priority = models.CharField(max_length=255)
+    deadline = models.DateField()
+
+    class Meta:
+        db_table = 'tasks'
         managed = False

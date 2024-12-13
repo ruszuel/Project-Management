@@ -218,3 +218,25 @@ def create_members(req):
     except Exception as e:
         print(e)
         return Response(status=400)
+
+@api_view(['POST'])
+def create_task(req):
+    data = req.data
+
+    print(data)
+    try:
+        task = Tasks(
+            project_id = data.get('project'),
+            feature = data.get('feature'),
+            status = data.get('status'),
+            assigned = data.get('assigned'),
+            sprint = data.get('sprint'),
+            priority = data.get('priority'),
+            deadline = data.get('deadline')
+        )
+
+        task.save()
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -17,5 +17,6 @@ urlpatterns = [
     path('api/projects', retrieve_project),
     path('api/create_project', create_project),
     path('api/members', retrieve_members),
-     path('api/create_member', create_members),
+    path('api/create_member', create_members),
+     path('api/new_task', create_task),
 ]
