@@ -22,15 +22,31 @@ const SideBar = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (managers.manager_id) {
-          getProject();
+        if (data.role) {
+            if(data.role === 'manager'){
+                getProject();
+            }  else{
+                getMemProject()
+            }
         }
-    }, [data.username]);      
+    }, [data.username, data.role]);      
 
     const getProject = async () => {
         try {
             console.log(managers.manager_id)
             const res = await axios.post('http://127.0.0.1:8000/api/projects', {manager: managers.manager_id})
+            if(res.status && res.status === 200){
+                setProjVal(res.data)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const getMemProject = async () => {
+        console.log(data.project_id)
+        try {
+            const res = await axios.post('http://127.0.0.1:8000/api/retrieve_member_project', {projID: data.project_id})
             if(res.status && res.status === 200){
                 setProjVal(res.data)
             }
@@ -77,7 +93,7 @@ const SideBar = () => {
                     <SidebarItem icon={'RiDashboardHorizontalLine'} item={'Project'}/>
                     <SidebarItem icon={'RiGroupLine'} item={'Members'} onClick={() => navigate('/members')}/>
                     <SidebarItem icon={'RiListCheck3'} item={'Tasks'} onClick={() => navigate('/task')}/>
-                    <SidebarItem icon={'RiCommandLine'} item={'Placeholder'}/>
+                    <SidebarItem icon={'RiFileChartLine'} item={'Generate Reports'}/>
                     <SidebarItem icon={'RiCommandLine'} item={'Placeholder'}/>
                 </div>
             </section>
@@ -107,11 +123,11 @@ const SideBar = () => {
                 <div className='w-full h-fit bg-white absolute top-20 ml-60 rounded-md z-10 shadow-lg p-1'>
                     <p className='text-gray-400 px-2 py-1 text-sm'>Projects</p>
                     <>
-                        {projVal.map((val) => (
-                            <ProjectModal item={val.project_title} key={val.project_id} onClick={() => {setValProj(val.project_title); setProjVisible(false); setProject(val.project_id)}}/> 
+                        {projVal.map((val, index) => (
+                            <ProjectModal item={val.project_title} key={index} onClick={() => {setValProj(val.project_title); setProjVisible(false); setProject(val.project_id)}}/> 
                         ))}
                     </>
-                    <div className='border-t border-gray-400 py-1'>
+                    <div className={`border-t border-gray-400 py-1 ${data.role === 'manager' ? '' : 'hidden'}`}>
                         <button className='p-2 hover:bg-[rgb(170,183,183)]/75 w-full text-sm flex gap-3 rounded-sm items-center' onClick={() => {setProjOpen(true); setProjVisible(false)}}>
                         <div className='border border-gray-400 p-1 rounded-md'> 
                             <RiAddLine size={18} color='#1a2d42'/>

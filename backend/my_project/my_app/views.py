@@ -42,15 +42,28 @@ def login(req):
     usermail = data.get('usermail')
 
     try:
-        user = Project.objects.get(username=usermail)
-        print(user)
-    except Project.DoesNotExist:
         try:
-            user = Project.objects.get(manager_email=usermail)
+            user = Project.objects.get(username=usermail)
             print(user)
         except Project.DoesNotExist:
-            return Response(status=404)
+            try:
+                user = Project.objects.get(manager_email=usermail)
+                print(user)
+            except Project.DoesNotExist:
+                try:
+                    user = Members.objects.get(username=usermail)
+                    print(user)
+                except Members.DoesNotExist:
+                    try:
+                        user = Members.objects.get(email=usermail)
+                        print(user)
+                    except Members.DoesNotExist:
+                        return Response(status=404)
+    except Project.DoesNotExist:
+        return Response(status=404)
+
         
+
     if check_password(data.get('password'), user.password):
         user_data = model_to_dict(user, fields=['manager_id','firstname', 'lastname', 'username', 'manager_email', 'password'])
         return Response(user_data,status=200)
@@ -88,8 +101,7 @@ def retrieve_specific_user(req):
     data = req.data
 
     try:
-        userdata = Project.objects.get(username = data['username'])
-
+        userdata = Project.objects.get(username=data['username'])
         response_data = {
             'manager_id': userdata.manager_id,
             'firstname': userdata.firstname,
@@ -97,10 +109,27 @@ def retrieve_specific_user(req):
             'username': userdata.username,
             'email': userdata.manager_email,
             'password': userdata.password,
+            'role': 'manager',
         }
         return Response(response_data, status=200)
     except Project.DoesNotExist:
-        return Response(status=404)
+        try:
+            userdata = Members.objects.get(username=data['username'])
+            response_data = {
+                'manager_id': userdata.member_id,
+                'project_id': userdata.project.project_id,
+                'PM': userdata.manager.manager_id,
+                'firstname': userdata.firstname,
+                'lastname': userdata.lastname,
+                'username': userdata.username,
+                'email': userdata.email,
+                'password': userdata.password,
+                'role': 'member',
+            }
+            return Response(response_data, status=200)
+        except Members.DoesNotExist:
+            return Response(status=404)
+
     
 @api_view(['POST'])
 def change_pass(req):
@@ -116,21 +145,40 @@ def change_pass(req):
         else:
             return Response({"message": "Wrong old pass"}, status=status.HTTP_400_BAD_REQUEST)
     except Exception:
-        return Response({"Error": "Unsuccessful"}, status=500)
-
+        try:
+            user = Members.objects.get(username = data.get('username'))
+            print(user.password)
+            if check_password(data.get('oldPass'), user.password):
+                hashed_pass = make_password(data.get('password'))
+                Members.objects.filter(username = data.get('username')).update(password = hashed_pass)
+                return Response(status=200)
+            else:
+                return Response({"message": "Wrong old pass"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({"Error": "Unsuccessful"}, status=500)
 
 @api_view(['POST'])
 def update_profile(req):
     data = req.data 
 
-    try:
-        firstname = data.get('firstname')
-        lastname = data.get('lastname')
+    firstname = data.get('firstname')
+    lastname = data.get('lastname')
+    username = data.get('username')
 
-        Project.objects.filter(username = data.get('username')).update(firstname = firstname, lastname = lastname)
-        return Response(status=200)
-    except Exception:
-        pass
+    try:
+        updated = Project.objects.filter(username=username).update(firstname=firstname, lastname=lastname)
+        if updated:
+            return Response(status=200)
+        
+        updated = Members.objects.filter(username=username).update(firstname=firstname, lastname=lastname)
+        if updated:
+            return Response(status=200)
+
+        return Response({"error": "User not found"}, status=404)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
 
 @api_view(['POST'])
 @csrf_exempt
@@ -142,9 +190,14 @@ def delete_acc(req):
         user.delete()
         return Response(status=200)
     except Exception as e:
-        messages.error(req, str(e))
-        print(e)
-        return Response(status=404)
+        try:
+            user = Members.objects.get(username = data.get('username'))
+            user.delete()
+            return Response(status=200)
+        except Exception as e:
+            messages.error(req, str(e))
+            print(e)
+            return Response(status=404)
     
 
 @api_view(['POST'])
@@ -223,7 +276,6 @@ def create_members(req):
 def create_task(req):
     data = req.data
 
-    print(data)
     try:
         task = Tasks(
             project_id = data.get('project'),
@@ -240,3 +292,44 @@ def create_task(req):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@csrf_exempt
+def delete_task(req):
+    data = req.data 
+
+    try:
+        task = Tasks.objects.get(project_id = data.get('projID'), task_id = data.get('taskID'))
+        task.delete()
+        return Response(status=200)
+    except Exception as e:
+        messages.error(req, str(e))
+        print(e)
+        return Response(status=404)
+    
+
+@api_view(['POST'])
+@csrf_exempt
+def delete_member(req):
+    data = req.data 
+
+    try:
+        task = Members.objects.get(project_id = data.get('projID'), member_id = data.get('memID'))
+        task.delete()
+        return Response(status=200)
+    except Exception as e:
+        messages.error(req, str(e))
+        print(e)
+        return Response(status=404)
+
+
+@api_view(['POST'])
+def retrieve_member_project(req):
+    data = req.data
+   
+    try:
+        projects = Proj.objects.filter(project_id = data.get('projID')).values('manager_id', 'project_title')
+        return Response(list(projects), status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=404)
