@@ -2,16 +2,17 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import {BrowserRouter as Router} from 'react-router-dom'
-import { AuthProvider } from './Context.jsx'
+import {BrowserRouter, BrowserRouter as Router} from 'react-router-dom'
+import { AuthProvider, TaskProvider } from './Context.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <Router>
     <StrictMode>
-      <AuthProvider>
-        <App/>
-      </AuthProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <TaskProvider>
+            <App/>
+          </TaskProvider>
+        </AuthProvider>
+      </BrowserRouter>
   </StrictMode>
-  </Router>
-  
 )

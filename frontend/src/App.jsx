@@ -8,6 +8,7 @@ import ProtectedRoutes from './ProtectedRoutes'
 import Layout from './Layout'
 import Members from './components/Members'
 import Profile from './components/Profile'
+import Task from './components/Task'
 function App() {
   return (
     <div>
@@ -20,6 +21,7 @@ function App() {
             <Route path='/forgot-pass' element={<ForgotPass/>}/>
             <Route path='/members' element={<Members/>}/>
             <Route path='/profile' element={<Profile/>}/>
+            <Route path='/task' element={<Task/>}/>
           </Route>
         </Route>
       </Routes>

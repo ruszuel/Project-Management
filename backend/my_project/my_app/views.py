@@ -27,7 +27,7 @@ def create_user(req):
             firstname = data.get('firstname'),
             lastname = data.get('lastname'),
             username = data.get('username'),
-            email = data.get('email'),
+            manager_email = data.get('email'),
             password = hashed_pass
         )
         user.save()
@@ -46,13 +46,13 @@ def login(req):
         print(user)
     except Project.DoesNotExist:
         try:
-            user = Project.objects.get(email=usermail)
+            user = Project.objects.get(manager_email=usermail)
             print(user)
         except Project.DoesNotExist:
             return Response(status=404)
         
     if check_password(data.get('password'), user.password):
-        user_data = model_to_dict(user, fields=['firstname', 'lastname', 'username', 'email', 'password'])
+        user_data = model_to_dict(user, fields=['manager_id','firstname', 'lastname', 'username', 'manager_email', 'password'])
         return Response(user_data,status=200)
     else:
         return Response(status=404)
@@ -62,7 +62,19 @@ def login(req):
 def retrieve_user(req):
 
     try:
-        users = Project.objects.all().values('username', 'email')
+        users = Project.objects.all().values('username', 'manager_email')
+        user_list = []
+
+        user_list = [{'username': user['username'], 'email': user['manager_email']} for user in users]
+        return Response(user_list, status=200)
+    except Exception as e:
+        print(e)
+
+@api_view(['GET'])
+def retrieve_member(req):
+
+    try:
+        users = Members.objects.all().values('username', 'email')
         user_list = []
 
         user_list = [{'username': user['username'], 'email': user['email']} for user in users]
@@ -79,10 +91,11 @@ def retrieve_specific_user(req):
         userdata = Project.objects.get(username = data['username'])
 
         response_data = {
+            'manager_id': userdata.manager_id,
             'firstname': userdata.firstname,
             'lastname': userdata.lastname,
             'username': userdata.username,
-            'email': userdata.email,
+            'email': userdata.manager_email,
             'password': userdata.password,
         }
         return Response(response_data, status=200)
@@ -132,3 +145,76 @@ def delete_acc(req):
         messages.error(req, str(e))
         print(e)
         return Response(status=404)
+    
+
+@api_view(['POST'])
+def retrieve_tasks(req):
+    data = req.data
+
+    try:
+        task = Tasks.objects.filter(project=data.get('project')).values('task_id', 'feature', 'status', 'assigned', 'sprint', 'priority', 'deadline')
+        return Response(list(task), status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=404)
+    
+@api_view(['POST'])
+def retrieve_project(req):
+    data = req.data
+   
+    try:
+        projects = Proj.objects.filter(manager = data.get('manager')).values('project_id', 'project_title')
+        return Response(list(projects), status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=404)
+
+@api_view(['POST'])
+def create_project(req):
+    data = req.data 
+
+    try:
+        proj = Proj(
+            project_title = data.get('title'),
+            manager_id = data.get('manager')
+        )
+        proj.save()
+        return Response(status=201)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+def retrieve_members(req):
+    data = req.data 
+
+    try:
+        members = Members.objects.filter(manager = data.get('manager'), project = data.get('project')).values()
+        print(list(members))
+        return Response(list(members), status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def create_members(req):
+    data = req.data 
+
+    try:
+        hashed_pass = make_password(data.get('password'))
+        member = Members(
+            project_id = data.get('project'),
+            manager_id = data.get('manager'),
+            firstname = data.get('firstname'),
+            lastname = data.get('lastname'),
+            username = data.get('username'),
+            email = data.get('email'),
+            password = hashed_pass
+        )
+        member.save()
+
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=400)

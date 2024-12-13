@@ -6,10 +6,10 @@ const Layout = () => {
   return (
     <div className='flex flex-1'>
         <aside className='flex-[0.15]'>
-            <SideBar/>
+          <SideBar/>
         </aside>
         <main className='flex-grow'>
-           <Outlet/>
+          <Outlet/>
         </main>
     </div>
   )
