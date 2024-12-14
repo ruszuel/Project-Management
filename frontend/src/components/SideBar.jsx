@@ -90,7 +90,7 @@ const SideBar = () => {
                 </div>
                 <div className='w-full'>
                     {/* pages */}
-                    <SidebarItem icon={'RiDashboardHorizontalLine'} item={'Project'}/>
+                    <SidebarItem icon={'RiDashboardHorizontalLine'} item={'Project'} onClick={() => navigate('/home')}/>
                     <SidebarItem icon={'RiGroupLine'} item={'Members'} onClick={() => navigate('/members')}/>
                     <SidebarItem icon={'RiListCheck3'} item={'Tasks'} onClick={() => navigate('/task')}/>
                     <SidebarItem icon={'RiFileChartLine'} item={'Generate Reports'}/>

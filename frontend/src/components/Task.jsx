@@ -8,7 +8,7 @@ import TaskAction from '../reusable/TaskAction'
 import EditTask from '../reusable/EditTask'
 
 const Task = () => {
-    const { project } = useTask()
+    const { project, editClick } = useTask()
     const { data } = useAuth()
     const [taskData, setTaskData] = useState([])
     const [newTask, setNewTask] = useState(false)
@@ -19,7 +19,7 @@ const Task = () => {
 
     const [statsVal, setStatsVal] = useState()
     const [prioVal, setPrioVal] = useState()
-    const [memberVal, setMemberVal] = useState()
+    const [memberVal, setMemberVal] = useState('')
 
     const [delProjID, setDelProjID] = useState('')
     const [delTaskID, setDelTaskID] = useState('')
@@ -40,7 +40,7 @@ const Task = () => {
 
     useEffect(() => {
         retrieveData()
-    }, [project])
+    }, [project, editClick])
 
     useEffect(() => {
         const checkMember = async () => {
@@ -109,7 +109,7 @@ const Task = () => {
                                         <td className="border border-gray-400 px-4 py-2">{task.priority}</td>
                                         <td className="border border-gray-400 px-4 py-2">{task.deadline}</td>
                                         <td className="border border-gray-400 px-4 py-2" onClick={() => { setDelProjID(project); setDelTaskID(task.task_id) }}>
-                                            <TaskAction click={() => onDelete()} edit={() => edit()} />
+                                            <TaskAction click={() => onDelete()} edit={task.task_id}/>
                                         </td>
                                     </tr>
                                 ))}

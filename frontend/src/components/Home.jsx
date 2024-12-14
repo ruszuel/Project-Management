@@ -1,9 +1,10 @@
 import React from 'react'
+import EditTask from '../reusable/EditTask'
 
 const Home = () => {
   return (
-    <div className='text-center'>
-      Home
+    <div className='flex-1 '>
+      {/* <EditTask/> */}
     </div>
   )
 }

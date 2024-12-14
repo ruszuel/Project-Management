@@ -18,14 +18,16 @@ const Members = () => {
   const { project } = useTask()
   const managers = JSON.parse(localStorage.getItem('user'));
 
+
+  const checkMember = async () => {
+    const users = await axios.get('http://127.0.0.1:8000/api/retrieve_member')
+    setMembersData(users.data)
+  }
+  
   useEffect(() => {
     const checkUSer = async () => {
       const users = await axios.get('http://127.0.0.1:8000/api/retrieve')
       setUserdata(users.data)
-    }
-    const checkMember = async () => {
-      const users = await axios.get('http://127.0.0.1:8000/api/retrieve_member')
-      setMembersData(users.data)
     }
     checkUSer()
     checkMember()
@@ -115,6 +117,7 @@ const Members = () => {
               initialValues={{ firstname: '', lastname: '', username: '', email: '', password: '' }}
               validationSchema={memberSchema}
               onSubmit={async (val, action) => {
+                checkMember()
                 const data = {
                   project: project,
                   manager: managers.manager_id,
@@ -129,6 +132,7 @@ const Members = () => {
                   if (ress && ress.status === 200) {
                     setToggleModal(false)
                     retrieveData()
+                    checkMember()
                   }
                 } catch (error) {
                   console.log(error)

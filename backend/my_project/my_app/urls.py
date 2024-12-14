@@ -22,4 +22,6 @@ urlpatterns = [
     path('api/rm_task', delete_task),
     path('api/rm_member', delete_member),
     path('api/retrieve_member_project', retrieve_member_project),
+    path('api/member_task', get_specific_task),
+    path('api/update_task', update_task),
 ]

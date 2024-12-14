@@ -333,3 +333,32 @@ def retrieve_member_project(req):
     except Exception as e:
         print(e)
         return Response(status=404)
+
+@api_view(['POST'])
+def get_specific_task(req):
+    data = req.data 
+    try:
+        task = Tasks.objects.filter(task_id=data.get('taskID')).values()
+        return Response(list(task), status=200)
+    except Exception as e: 
+       print(e)
+       return Response(status=500)
+    
+
+@api_view(['POST'])
+def update_task(req):
+
+    data = req.data 
+    features = data.get('feature')
+    status = data.get('status')
+    priority = data.get('priority')
+    sprint = data.get('sprint')
+    deadline = data.get('deadline')
+    assigned = data.get('assigned')
+
+    try:
+        Tasks.objects.filter(task_id=data.get('taskID')).update(feature=features, status=status, priority=priority, sprint=sprint, deadline=deadline, assigned=assigned)
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=400)
