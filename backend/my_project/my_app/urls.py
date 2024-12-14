@@ -24,4 +24,6 @@ urlpatterns = [
     path('api/retrieve_member_project', retrieve_member_project),
     path('api/member_task', get_specific_task),
     path('api/update_task', update_task),
+    path('api/indiv_task', get_member_task),
+    path('api/update_indiv_task', update_indiv_task),
 ]

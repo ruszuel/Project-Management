@@ -89,7 +89,8 @@ const Members = () => {
                 <th className="border border-gray-400 px-4 py-2">Lastname</th>
                 <th className="border border-gray-400 px-4 py-2">Username</th>
                 <th className="border border-gray-400 px-4 py-2">Email</th>
-                <th className="border border-gray-400 px-4 py-2">Actions</th>
+                {data.role === 'maager' ? <th className="border border-gray-400 px-4 py-2">Actions</th> : ''}
+                
               </tr>
             </thead>
             <tbody className='text-center'>
@@ -100,7 +101,9 @@ const Members = () => {
                   <td className="border border-gray-400 px-4 py-2">{mem.lastname}</td>
                   <td className="border border-gray-400 px-4 py-2">{mem.username}</td>
                   <td className="border border-gray-400 px-4 py-2">{mem.email}</td>
-                  <td className="border border-gray-400 px-4 py-2" onClick={() => { setDelMemID(mem.member_id); setDelProjID(project) }}><MemberAction click={() => onDelete()} /></td>
+                  {data.role === 'manager' ? 
+                    <td className="border border-gray-400 px-4 py-2" onClick={() => { setDelMemID(mem.member_id); setDelProjID(project) }}><MemberAction click={() => onDelete()} /></td> : ''
+                  }
                 </tr>
               ))}
 

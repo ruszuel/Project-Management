@@ -1,12 +1,13 @@
 import { RiDeleteBack2Line, RiEdit2Line, RiSettingsLine } from '@remixicon/react'
 import React, { useState } from 'react'
 import EditTask from './EditTask'
-import { useTask } from '../Context'
+import { useAuth, useTask } from '../Context'
+import EditTaskMember from './EditTaskMember'
 
 const MemberAction = (props) => {
   const [clicked, setClicked] = useState(false)
-  // const [editClick, setEditClick] = useState(false)
   const {editClick, setEditClick, setTaskID} = useTask()
+  const {data} = useAuth()
   const taskID = props.edit
   return (
     <div className='flex justify-center relative h-full'>
@@ -17,16 +18,16 @@ const MemberAction = (props) => {
             <p className='text-sm'>Edit</p>
             <RiEdit2Line size={18} />
           </div>
-          <div className='z-30 p-3 w-32 hover:bg-gray-200 cursor-pointer flex justify-between items-center' onClick={props.click}>
+          <div className={`z-30 p-3 w-32 hover:bg-gray-200 cursor-pointer flex justify-between items-center ${data.role === 'manager' ? '' : 'hidden'}`} onClick={props.click}>
             <p className='text-sm'>Delete</p>
             <RiDeleteBack2Line size={18} />
           </div>
         </div>
       }
 
-      {editClick &&
-        <EditTask/>
-      }
+      {editClick &&(
+        data.role === 'manager' ? <EditTask/> : <EditTaskMember/>
+      )}
     </div>
   )
 }

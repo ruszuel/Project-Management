@@ -38,8 +38,22 @@ const Task = () => {
         }
     }
 
+    const retrieveMemTask = async () => {
+        try {
+            const res = await axios.post('http://127.0.0.1:8000/api/indiv_task', {projID: project, username: managers.username})
+            setTaskData(res.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
-        retrieveData()
+        console.log(data.role, project)
+        if(data.role === 'manager'){
+            retrieveData()
+        }else if(data.role === 'member'){
+            retrieveMemTask()
+        }
     }, [project, editClick])
 
     useEffect(() => {

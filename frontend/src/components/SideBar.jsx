@@ -44,7 +44,7 @@ const SideBar = () => {
     }
 
     const getMemProject = async () => {
-        console.log(data.project_id)
+        console.log("mem proj",data.project_id)
         try {
             const res = await axios.post('http://127.0.0.1:8000/api/retrieve_member_project', {projID: data.project_id})
             if(res.status && res.status === 200){
@@ -70,6 +70,7 @@ const SideBar = () => {
   return (
     <div className='flex w-[16rem] h-screen font-poppins'>
         {/* main container */}
+        {console.log(projVal)}
         <aside className='flex-1 bg-white flex flex-col pb-2 border-r border-gray-400 relative'>
             {/* sidebar */}
             <section className='flex-1 flex flex-col gap-y-8'>

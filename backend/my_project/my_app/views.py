@@ -242,7 +242,7 @@ def retrieve_members(req):
     data = req.data 
 
     try:
-        members = Members.objects.filter(manager = data.get('manager'), project = data.get('project')).values()
+        members = Members.objects.filter(project = data.get('project')).values()
         print(list(members))
         return Response(list(members), status=200)
     except Exception as e:
@@ -328,7 +328,7 @@ def retrieve_member_project(req):
     data = req.data
    
     try:
-        projects = Proj.objects.filter(project_id = data.get('projID')).values('manager_id', 'project_title')
+        projects = Proj.objects.filter(project_id = data.get('projID')).values('project_id','manager_id', 'project_title')
         return Response(list(projects), status=200)
     except Exception as e:
         print(e)
@@ -358,6 +358,29 @@ def update_task(req):
 
     try:
         Tasks.objects.filter(task_id=data.get('taskID')).update(feature=features, status=status, priority=priority, sprint=sprint, deadline=deadline, assigned=assigned)
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=400)
+
+@api_view(['POST'])
+def get_member_task(req):
+    data = req.data
+
+    try:
+        task_data = Tasks.objects.filter(project_id = data.get('projID'), assigned=data.get('username')).values()
+        return Response(list(task_data), status=200)
+    except Exception as e:
+        return Response(status=404)
+    
+@api_view(['POST'])
+def update_indiv_task(req):
+
+    data = req.data 
+    status = data.get('status')
+
+    try:
+        Tasks.objects.filter(task_id=data.get('taskID')).update(status=status)
         return Response(status=200)
     except Exception as e:
         print(e)

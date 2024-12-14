@@ -48,12 +48,11 @@ const EditTask = () => {
             const users = await axios.post('http://127.0.0.1:8000/api/members', { project: project, manager: managers.manager_id })
             setMembersData(users.data)
         }
-        console.log(project, managers.manager_id)
         checkMember()
     }, [project])
 
     return (
-        <div className='flex flex-col justify-center items-center inset-0 bg-black/50 fixed z-30 font-poppins'>
+        <div className='flex flex-col justify-center items-center inset-0 bg-black/20 fixed z-30 font-poppins'>
             <div className='bg-white p-5 rounded-md w-2/6 flex text-left flex-col gap-10'>
                 <div className='text-left'>
                     <p className='text-2xl font-semibold'>Edit Task</p>
