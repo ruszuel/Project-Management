@@ -4,6 +4,7 @@ import * as yup from 'yup'
 import axios from 'axios'
 import { RiArrowDownSLine, RiArrowUpSLine } from '@remixicon/react'
 import { useAuth, useTask } from '../Context'
+import { Toaster, toast } from 'sonner'
 
 
 const EditTask = () => {
@@ -12,13 +13,13 @@ const EditTask = () => {
     const [togglePrio, setTogglePrio] = useState(false)
     const [toggleMembers, setToggleMembers] = useState(false)
     const [taskData, setTaskData] = useState([])
-    const {setEditClick, project, taskID } = useTask()
+    const { setEditClick, project, taskID } = useTask()
     const managers = JSON.parse(localStorage.getItem('user'));
 
     const stats = [{ label: 'Ongoing', value: 'Ongoing' }, { label: 'Not started', value: 'Not started' }, { label: 'Completed', value: 'Completed' }, { label: 'Pending', value: 'Pending' }]
     const prio = [{ label: 'Low', value: 'Low' }, { label: 'Medium', value: 'Medium' }, { label: 'High', value: 'High' }, { label: 'Very High', value: 'Very High' }]
     const today = new Date().toISOString().slice(0, 10);
-
+    const updateS = () => toast.success('Task updated succesfully')
     const taskSchema = yup.object().shape({
         feature: yup.string().required().max(40).min(5),
         statss: yup.string().required(),
@@ -45,7 +46,7 @@ const EditTask = () => {
 
     useEffect(() => {
         const checkMember = async () => {
-            const users = await axios.post('http://127.0.0.1:8000/api/members', { project: project, manager: managers.manager_id })
+            const users = await axios.post('http://127.0.0.1:8000/api/retrieve_mem_proj', { projectID: project })
             setMembersData(users.data)
         }
         checkMember()
@@ -53,6 +54,9 @@ const EditTask = () => {
 
     return (
         <div className='flex flex-col justify-center items-center inset-0 bg-black/20 fixed z-30 font-poppins'>
+            <Toaster richColors position="top-right" duration={3000} toastOptions={{
+                className: 'text-base'
+            }} />
             <div className='bg-white p-5 rounded-md w-2/6 flex text-left flex-col gap-10'>
                 <div className='text-left'>
                     <p className='text-2xl font-semibold'>Edit Task</p>
@@ -85,7 +89,7 @@ const EditTask = () => {
                             try {
                                 const datass = await axios.post('http://127.0.0.1:8000/api/update_task', newTask)
                                 if (datass && datass.status === 200) {
-
+                                    updateS()
                                     setEditClick(false)
                                     retrieveData()
                                 }

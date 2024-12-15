@@ -2,13 +2,14 @@ import { RiArrowDownSLine, RiArrowUpSLine } from '@remixicon/react';
 import React, { useEffect, useState } from 'react'
 import { useTask } from '../Context';
 import axios from 'axios';
+import { Toaster, toast } from 'sonner'
 
 const EditTaskMember = () => {
     const [toggleStats, setToggleStats] = useState(false)
     const [statsVal, setStatsVal] = useState('')
     const { setEditClick, taskID } = useTask()
     const stats = [{ label: 'Ongoing', value: 'Ongoing' }, { label: 'Not started', value: 'Not started' }, { label: 'Completed', value: 'Completed' }, { label: 'Pending', value: 'Pending' }]
-
+    const updateS = () => toast.success('Task updated succesfully')
     useEffect(() => {
         const getTask = async () => {
             try {
@@ -27,8 +28,9 @@ const EditTaskMember = () => {
     const updateStats = async () => {
         console.log(statsVal)
         try {
-            const updatee = await axios.post('http://127.0.0.1:8000/api/update_indiv_task', { taskID: taskID, status: statsVal})
+            const updatee = await axios.post('http://127.0.0.1:8000/api/update_indiv_task', { taskID: taskID, status: statsVal })
             if (updatee && updatee.status === 200) {
+                updateS()
                 setEditClick(false)
             }
         } catch (error) {
@@ -38,6 +40,9 @@ const EditTaskMember = () => {
 
     return (
         <div className='flex flex-col justify-center items-center inset-0 bg-black/50 fixed z-30 font-poppins'>
+            <Toaster richColors position="top-right" duration={3000} toastOptions={{
+                className: 'text-base'
+            }} />
             <div className='bg-white p-5 rounded-md w-1/5 flex text-left flex-col gap-10'>
                 <div className='text-left'>
                     <p className='text-2xl font-semibold'>Edit Task</p>

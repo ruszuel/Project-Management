@@ -6,6 +6,7 @@ import * as yup from 'yup'
 import { Formik } from 'formik'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import {Toaster, toast} from 'sonner'
 
 const Profile = () => {
     const {del, setDel, data, logout} = useAuth()
@@ -17,6 +18,8 @@ const Profile = () => {
     const [toggleConfirm, setToggleConfirm] = useState(false)
     const [changeP, setChangeP] = useState(false)
     const navigate = useNavigate()
+    const basicToast = () => toast.success('Profile updated successfully')
+    const chngPss = () => toast.success('Changed password successfully')
 
     const profileScheme = yup.object().shape({
         firstname: yup.string().required().max(20),
@@ -47,7 +50,10 @@ const Profile = () => {
     }
 
   return (
-    <div className='p-7 px-10 font-poppins flex flex-col h-screen gap-10 relative'> 
+    <div className='p-7 px-10 font-poppins flex flex-col h-screen gap-10 relative'>
+        <Toaster richColors position="top-right" duration={3000} toastOptions={{
+            className: 'text-base'
+        }}/> 
         <div>
             <div>
                 <p className='text-2xl font-semibold'>Account & Settings</p>
@@ -71,6 +77,7 @@ const Profile = () => {
                         const res = await axios.post('http://127.0.0.1:8000/api/update_profile', updatedData)
                         if(res.status && res.status === 200){
                             setIsDisable(true)
+                            basicToast()
                         }
                     } catch (error) {
                         console.log(error)
@@ -111,7 +118,7 @@ const Profile = () => {
                 </div>
                 
                 <div className='flex items-center justify-end gap-2'>
-                    <p className='px-5 py-2 bg-[#1A2D42] text-white rounded-md hover:bg-[#D4D8DD] text-sm cursor-pointer' onClick={() => setChangeP(true)}>Change Password</p>
+                    <p className='px-5 py-2 bg-[#1A2D42] text-white rounded-md hover:bg-[#D4D8DD] text-sm cursor-pointer' onClick={() => {setChangeP(true)}}>Change Password</p>
                 </div>
             </div>  
             
@@ -156,6 +163,7 @@ const Profile = () => {
                             try {
                                 const res = await axios.post('http://127.0.0.1:8000/api/change_pass', datas)
                                 if(res.status && res.status === 200){
+                                    chngPss()
                                     setChangeP(false)
                                     logout()
                                 }
