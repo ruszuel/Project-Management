@@ -252,22 +252,31 @@ def retrieve_members(req):
 
 @api_view(['POST'])
 def create_members(req):
-    data = req.data 
+    data = req.data
 
     try:
+        project = Proj.objects.get(project_id=data.get('project'))
+
         hashed_pass = make_password(data.get('password'))
         member = Members(
-            project_id = data.get('project'),
-            manager_id = data.get('manager'),
-            firstname = data.get('firstname'),
-            lastname = data.get('lastname'),
-            username = data.get('username'),
-            email = data.get('email'),
-            password = hashed_pass
+            project_id=data.get('project'),
+            manager_id=data.get('manager'),
+            firstname=data.get('firstname'),
+            lastname=data.get('lastname'),
+            username=data.get('username'),
+            email=data.get('email'),
+            password=hashed_pass
         )
         member.save()
 
+        Notification.objects.create(
+            member=member,
+            message=f"You have been added to the project '{project.project_title}'."
+        )
+
         return Response(status=200)
+    except Proj.DoesNotExist:
+        return Response({"error": "Project not found"}, status=404)
     except Exception as e:
         print(e)
         return Response(status=400)
@@ -277,18 +286,30 @@ def create_task(req):
     data = req.data
 
     try:
+        project = Proj.objects.get(project_id=data.get('project'))
+        assigned_member = Members.objects.get(username=data.get('assigned'))
+
         task = Tasks(
-            project_id = data.get('project'),
-            feature = data.get('feature'),
-            status = data.get('status'),
-            assigned = data.get('assigned'),
-            sprint = data.get('sprint'),
-            priority = data.get('priority'),
-            deadline = data.get('deadline')
+            project_id=data.get('project'),
+            feature=data.get('feature'),
+            status=data.get('status'),
+            assigned=data.get('assigned'),
+            sprint=data.get('sprint'),
+            priority=data.get('priority'),
+            deadline=data.get('deadline')
+        )
+        task.save()
+
+        Notification.objects.create(
+            member=assigned_member,
+            message=f"You have been assigned to the task '{data.get('feature')}' in the project '{project.project_title}'."
         )
 
-        task.save()
         return Response(status=200)
+    except Proj.DoesNotExist:
+        return Response({"error": "Project not found"}, status=404)
+    except Members.DoesNotExist:
+        return Response({"error": "Assigned member not found"}, status=404)
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -385,3 +406,15 @@ def update_indiv_task(req):
     except Exception as e:
         print(e)
         return Response(status=400)
+
+@api_view(['GET'])
+def get_notifications(req, username):
+    try:
+        member = Members.objects.get(username=username)
+        notifications = Notification.objects.filter(member=member).values(
+            'notification_id', 'message', 'is_read', 'created_at'
+        )
+        return Response(list(notifications), status=200)
+    except Members.DoesNotExist:
+        return Response({"error": "Member not found"}, status=404)
+
