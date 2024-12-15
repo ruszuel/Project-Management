@@ -255,15 +255,12 @@ def create_members(req):
     data = req.data
 
     try:
-        # Fetch the project by its ID from the data
         project = Proj.objects.get(project_id=data.get('project'))
 
-        # Hash the member's password
         hashed_pass = make_password(data.get('password'))
 
-        # Create a new member linked to the project
         member = Members(
-            project=project,  # Link the project directly instead of using project_id
+            project=project,
             manager_id=data.get('manager'),
             firstname=data.get('firstname'),
             lastname=data.get('lastname'),
@@ -273,7 +270,6 @@ def create_members(req):
         )
         member.save()
 
-        # Create a notification for the newly added member
         Notification.objects.create(
             member=member,
             message=f"You have been added to the project '{project.project_title}'."
@@ -283,7 +279,7 @@ def create_members(req):
     except Proj.DoesNotExist:
         return Response({"error": "Project not found"}, status=404)
     except Exception as e:
-        print(f"Error: {e}")  # Improved logging for debugging
+        print(f"Error: {e}") 
         return Response({"error": "An error occurred"}, status=400)
 
 
@@ -419,13 +415,12 @@ def get_notifications(req, username):
         member = Members.objects.get(username=username)
         notifications = Notification.objects.filter(member=member)
         
-        # Format each notification with a formatted timestamp
         notifications_data = [
             {
                 'notification_id': notif.notification_id,
                 'message': notif.message,
                 'is_read': notif.is_read,
-                'created_at': notif.created_at.strftime('%Y-%m-%d %H:%M:%S')  # Format timestamp
+                'created_at': notif.created_at.strftime('%Y-%m-%d %H:%M:%S') 
             }
             for notif in notifications
         ]
