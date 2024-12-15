@@ -33,7 +33,7 @@ const Members = () => {
 
   const retrieveData = async () => {
     try {
-      const res = await axios.post('http://127.0.0.1:8000/api/members', { project: project, manager: data.manager_id })
+      const res = await axios.post('http://127.0.0.1:8000/api/members', { project: project.project_id, manager: data.manager_id })
       if (res && res.status === 200) {
         setMembers(res.data)
       }
@@ -80,14 +80,14 @@ const Members = () => {
           </div>
         </div>
         <div className="rounded-md">
-          <table className="w-full border-collapse border border-gray-400 rounded-md">
+          <table className="w-full border-collapse border border-gray-400 rounded-lg">
             <thead className="">
               <tr className='text-sm'>
-                <th className="border border-gray-400 px-4 py-2">Firstname</th>
-                <th className="border border-gray-400 px-4 py-2">Lastname</th>
-                <th className="border border-gray-400 px-4 py-2">Username</th>
-                <th className="border border-gray-400 px-4 py-2">Email</th>
-                <th className="border border-gray-400 px-4 py-2">Actions</th>
+                <th className="px-4 py-2">Firstname</th>
+                <th className="bpx-4 py-2">Lastname</th>
+                <th className="px-4 py-2">Username</th>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody className='text-center'>
@@ -116,7 +116,7 @@ const Members = () => {
               validationSchema={memberSchema}
               onSubmit={async (val, action) => {
                 const data = {
-                  project: project,
+                  project: project.project_id,
                   manager: managers.manager_id,
                   firstname: val.firstname,
                   lastname: val.lastname,

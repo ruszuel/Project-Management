@@ -6,6 +6,7 @@ import { Formik } from 'formik'
 import * as yup from 'yup'
 import TaskAction from '../reusable/TaskAction'
 import EditTask from '../reusable/EditTask'
+import DoughnutChart from '../reusable/DoughnutChart'
 
 const Task = () => {
     const { project } = useTask()
@@ -31,7 +32,7 @@ const Task = () => {
 
     const retrieveData = async () => {
         try {
-            const res = await axios.post('http://127.0.0.1:8000/api/tasks', { project: project })
+            const res = await axios.post('http://127.0.0.1:8000/api/tasks', { project: project.project_id })
             setTaskData(res.data)
         } catch (err) {
             console.log(err)
@@ -44,7 +45,7 @@ const Task = () => {
 
     useEffect(() => {
         const checkMember = async () => {
-            const users = await axios.post('http://127.0.0.1:8000/api/members', { project: project, manager: managers.manager_id })
+            const users = await axios.post('http://127.0.0.1:8000/api/members', { project: project.project_id, manager: managers.manager_id })
             setMembersData(users.data)
         }
         checkMember()
@@ -67,7 +68,8 @@ const Task = () => {
         priority: yup.string().required(),
         sprint: yup.number().required(),
         deadline: yup.date().required(),
-        assign: yup.string().required()
+        assign: yup.string().required(),
+        starting_date: yup.string().required()
     })
 
     return (
@@ -77,6 +79,11 @@ const Task = () => {
                     <p className='font-semibold text-2xl'>Welcome back!</p>
                     <p className='text-gray-400'>Here's a list of the tasks for the project!</p>
                 </div>
+                <div className='flex flex-col items-center justify-center'>
+                    <div className="w-[100%] flex items-center justify-center">
+                        <DoughnutChart />
+                    </div>
+                </div>
 
                 <div className='flex flex-col gap-4'>
                     <div className='flex justify-end'>
@@ -84,8 +91,8 @@ const Task = () => {
                     </div>
 
                     <div className="rounded-md">
-                        <table className="w-full border-collapse border border-gray-400 rounded-md">
-                            <thead className="">
+                            <table className="w-full border border-gray-400 rounded-lg overflow-hidden">
+                            <thead className="bg-gray-300">
                                 <tr className='text-sm'>
                                     <th className="border border-gray-400 px-4 py-2">Task</th>
                                     <th className="border border-gray-400 px-4 py-2">Feature</th>
@@ -93,6 +100,7 @@ const Task = () => {
                                     <th className="border border-gray-400 px-4 py-2">Assigned</th>
                                     <th className="border border-gray-400 px-4 py-2">Sprint</th>
                                     <th className="border border-gray-400 px-4 py-2">Priority</th>
+                                    <th className="border border-gray-400 px-4 py-2">Starting Date</th>
                                     <th className="border border-gray-400 px-4 py-2">Deadline</th>
                                     <th className="border border-gray-400 px-4 py-2">Actions</th>
                                 </tr>
@@ -107,6 +115,7 @@ const Task = () => {
                                         <td className="border border-gray-400 px-4 py-2">{task.assigned}</td>
                                         <td className="border border-gray-400 px-4 py-2">{task.sprint}</td>
                                         <td className="border border-gray-400 px-4 py-2">{task.priority}</td>
+                                        <td className="border border-gray-400 px-4 py-2">{task.starting_date}</td>
                                         <td className="border border-gray-400 px-4 py-2">{task.deadline}</td>
                                         <td className="border border-gray-400 px-4 py-2" onClick={() => { setDelProjID(project); setDelTaskID(task.task_id) }}>
                                             <TaskAction click={() => onDelete()} edit={() => edit()} />
@@ -129,18 +138,19 @@ const Task = () => {
                         </div>
                         <div className='flex flex-col gap-6'>
                             <Formik
-                                initialValues={{ feature: '', statss: '', priority: '', sprint: '', deadline: '', assign: '' }}
+                                initialValues={{ feature: '', statss: '', priority: '', sprint: '', deadline: '', assign: '', starting_date: '' }}
                                 validationSchema={taskSchema}
                                 onSubmit={async (val) => {
 
                                     const newTask = {
-                                        project: project,
+                                        project: project.project_id,
                                         feature: val.feature,
                                         status: val.statss,
                                         assigned: val.assign,
                                         sprint: val.sprint,
                                         priority: val.priority,
-                                        deadline: val.deadline
+                                        deadline: val.deadline,
+                                        starting_date: val.starting_date
                                     }
 
                                     try {
@@ -202,12 +212,12 @@ const Task = () => {
                                             </div>
 
                                             <div className='flex gap-3'>
-                                                <div className='w-full'>
+                                            <div className='w-full'>
                                                     <div className='flex justify-between'>
-                                                        <p className='font-semibold text-sm'>Sprint</p>
-                                                        <p className='text-red-400 text-sm justify-self-end'>{props.errors.sprint && props.touched.sprint && props.errors.sprint}</p>
+                                                        <p className='font-semibold text-sm'>Starting Date</p>
+                                                        <p className='text-red-400 text-sm justify-self-end'>{props.errors.starting_date && props.touched.starting_date && props.errors.starting_date}</p>
                                                     </div>
-                                                    <input type='number' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm disabled:text-gray-400' placeholder='Sprint' onChange={props.handleChange('sprint')} onBlur={props.handleBlur('sprint')} min={'1'} />
+                                                    <input type='date' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm disabled:text-gray-400' onChange={props.handleChange('starting_date')} onBlur={props.handleBlur('starting_date')} min={today} />
                                                 </div>
                                                 <div className='w-full'>
                                                     <div className='flex justify-between'>
@@ -215,6 +225,13 @@ const Task = () => {
                                                         <p className='text-red-400 text-sm justify-self-end'>{props.errors.deadline && props.touched.deadline && props.errors.deadline}</p>
                                                     </div>
                                                     <input type='date' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm disabled:text-gray-400' onChange={props.handleChange('deadline')} onBlur={props.handleBlur('deadline')} min={today} />
+                                                </div>
+                                                <div className='w-full'>
+                                                    <div className='flex justify-between'>
+                                                        <p className='font-semibold text-sm'>Sprint</p>
+                                                        <p className='text-red-400 text-sm justify-self-end'>{props.errors.sprint && props.touched.sprint && props.errors.sprint}</p>
+                                                    </div>
+                                                    <input type='number' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm disabled:text-gray-400' placeholder='Sprint' onChange={props.handleChange('sprint')} onBlur={props.handleBlur('sprint')} min={'1'} />
                                                 </div>
                                             </div>
 

@@ -15,6 +15,7 @@ const SideBar = () => {
     const [valProj, setValProj] = useState('')
     const [projOpen, setProjOpen] = useState(false)
     const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
 
     const { logout, data} = useAuth()
     const {setProject, project} = useTask()
@@ -57,7 +58,7 @@ const SideBar = () => {
 
     const handleCreate = useCallback(async () => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/create_project', {title: title, manager: managers.manager_id})
+            const response = await axios.post('http://127.0.0.1:8000/api/create_project', {title: title, description: description, manager: managers.manager_id})
             if(response && response.status === 201){
                 setProjOpen(false)
                 getProject()
@@ -65,7 +66,7 @@ const SideBar = () => {
         }catch (error) {
             console.log(error)
         }
-    },[title])
+    },[title,description])
 
   return (
     <div className='flex w-[16rem] h-screen font-poppins'>
@@ -90,9 +91,10 @@ const SideBar = () => {
                 </div>
                 <div className='w-full'>
                     {/* pages */}
-                    <SidebarItem icon={'RiDashboardHorizontalLine'} item={'Project'}/>
+                    <SidebarItem icon={'RiDashboardLine'} item={'Dashboard'} onClick={() =>navigate('/home')}/>
                     <SidebarItem icon={'RiGroupLine'} item={'Members'} onClick={() => navigate('/members')}/>
                     <SidebarItem icon={'RiListCheck3'} item={'Tasks'} onClick={() => navigate('/task')}/>
+                    <SidebarItem icon={'RiCalendarEventLine'} item={'Gantt Chart'} onClick={() => navigate('/projectschedule')}/>
                     <SidebarItem icon={'RiFileChartLine'} item={'Generate Reports'}/>
                     <SidebarItem icon={'RiCommandLine'} item={'Placeholder'}/>
                 </div>
@@ -124,7 +126,7 @@ const SideBar = () => {
                     <p className='text-gray-400 px-2 py-1 text-sm'>Projects</p>
                     <>
                         {projVal.map((val, index) => (
-                            <ProjectModal item={val.project_title} key={index} onClick={() => {setValProj(val.project_title); setProjVisible(false); setProject(val.project_id)}}/> 
+                            <ProjectModal item={val.project_title} key={index} onClick={() => {setValProj(val.project_title); setProjVisible(false); setProject({ project_id: val.project_id, project_description: val.project_description});}}/> 
                         ))}
                     </>
                     <div className={`border-t border-gray-400 py-1 ${data.role === 'manager' ? '' : 'hidden'}`}>
@@ -164,6 +166,10 @@ const SideBar = () => {
                         <div>
                             <p className='font-semibold text-sm'>Project Title</p>
                             <input type='text' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm' value={title} placeholder='Project' onChange={(e) => {setTitle(e.target.value); console.log(title)}} maxLength={30} required/>
+                        </div>
+                        <div>
+                            <p className='font-semibold text-sm'>Project Description</p>
+                            <input type='text' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm' value={description} placeholder='Project Description...' onChange={(e) => {setDescription(e.target.value); console.log(description)}}/>
                         </div>
                         <div className='flex items-center justify-end gap-2'>
                             <p className='px-3 py-2 border-gray-400/50 border rounded-md hover:bg-gray-200/50 text-sm cursor-pointer' onClick={() => {setProjOpen(false)}}>Cancel</p>
