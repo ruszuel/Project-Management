@@ -255,11 +255,15 @@ def create_members(req):
     data = req.data
 
     try:
+        # Fetch the project by its ID from the data
         project = Proj.objects.get(project_id=data.get('project'))
 
+        # Hash the member's password
         hashed_pass = make_password(data.get('password'))
+
+        # Create a new member linked to the project
         member = Members(
-            project_id=data.get('project'),
+            project=project,  # Link the project directly instead of using project_id
             manager_id=data.get('manager'),
             firstname=data.get('firstname'),
             lastname=data.get('lastname'),
@@ -269,6 +273,7 @@ def create_members(req):
         )
         member.save()
 
+        # Create a notification for the newly added member
         Notification.objects.create(
             member=member,
             message=f"You have been added to the project '{project.project_title}'."
@@ -278,8 +283,9 @@ def create_members(req):
     except Proj.DoesNotExist:
         return Response({"error": "Project not found"}, status=404)
     except Exception as e:
-        print(e)
-        return Response(status=400)
+        print(f"Error: {e}")  # Improved logging for debugging
+        return Response({"error": "An error occurred"}, status=400)
+
 
 @api_view(['POST'])
 def create_task(req):
@@ -411,10 +417,19 @@ def update_indiv_task(req):
 def get_notifications(req, username):
     try:
         member = Members.objects.get(username=username)
-        notifications = Notification.objects.filter(member=member).values(
-            'notification_id', 'message', 'is_read', 'created_at'
-        )
-        return Response(list(notifications), status=200)
+        notifications = Notification.objects.filter(member=member)
+        
+        # Format each notification with a formatted timestamp
+        notifications_data = [
+            {
+                'notification_id': notif.notification_id,
+                'message': notif.message,
+                'is_read': notif.is_read,
+                'created_at': notif.created_at.strftime('%Y-%m-%d %H:%M:%S')  # Format timestamp
+            }
+            for notif in notifications
+        ]
+        return Response(notifications_data, status=200)
     except Members.DoesNotExist:
         return Response({"error": "Member not found"}, status=404)
 

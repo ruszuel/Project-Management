@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { RiAddLine, RiCommandLine, RiExpandUpDownLine, RiUser3Line} from '@remixicon/react'
+import { RiAddLine, RiCommandLine, RiExpandUpDownLine, RiUser3Line, RiNotification4Fill} from '@remixicon/react'
 import SidebarItem from '../reusable/SidebarItem'
 import SidebarModal from '../reusable/SidebarModal'
 import { useAuth, useTask } from '../Context'
@@ -10,6 +10,8 @@ import ProjectModal from '../reusable/ProjectModal'
 const SideBar = () => {
     const [visible, setVisible] = useState(false)
     const [projVisible, setProjVisible] = useState(false)
+    const [notifVisible, setNotifVisible] = useState(false)
+    const [notifVal, setNotifVal] = useState([])
     const [isOpen, setIsOpen] = useState(false)
     const [projVal, setProjVal] = useState([])
     const [valProj, setValProj] = useState('')
@@ -55,6 +57,28 @@ const SideBar = () => {
         }
     }
 
+    const getNotifications = async () => {
+        try {
+            const res = await axios.get(`http://127.0.0.1:8000/api/notifications/${data.username}/`);
+            if (res.status === 200) {
+                setNotifVal(res.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };    
+    
+    useEffect(() => {
+        if (data.role) {
+            if(data.role === 'manager'){
+                getProject();
+            } else {
+                getMemProject();
+            }
+            getNotifications(); 
+        }
+    }, [data.username, data.role]);    
+
     const handleCreate = useCallback(async () => {
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/create_project', {title: title, manager: managers.manager_id})
@@ -91,11 +115,19 @@ const SideBar = () => {
                 </div>
                 <div className='w-full'>
                     {/* pages */}
-                    <SidebarItem icon={'RiDashboardHorizontalLine'} item={'Project'} onClick={() => navigate('/home')}/>
-                    <SidebarItem icon={'RiGroupLine'} item={'Members'} onClick={() => navigate('/members')}/>
-                    <SidebarItem icon={'RiListCheck3'} item={'Tasks'} onClick={() => navigate('/task')}/>
-                    <SidebarItem icon={'RiFileChartLine'} item={'Generate Reports'}/>
-                    <SidebarItem icon={'RiCommandLine'} item={'Placeholder'}/>
+                    <SidebarItem icon={'RiDashboardHorizontalLine'} item={'Project'} onClick={() => navigate('/home')} />
+                    <SidebarItem icon={'RiGroupLine'} item={'Members'} onClick={() => navigate('/members')} />
+                    <SidebarItem icon={'RiListCheck3'} item={'Tasks'} onClick={() => navigate('/task')} />
+                    <SidebarItem icon={'RiFileChartLine'} item={'Generate Reports'} />
+
+                    {/* Conditionally render Notification sidebar item based on role */}
+                    {data.role !== 'manager' && (
+                        <SidebarItem
+                            icon={'RiNotification2Line'}
+                            item={'Notification'}
+                            onClick={() => notifVisible ? setNotifVisible(false) : setNotifVisible(true)}
+                        />
+                    )}
                 </div>
             </section>
             <div className='px-5 w-full justify-end flex flex-col'>
@@ -138,8 +170,36 @@ const SideBar = () => {
                     </div>
                 </div>
             }
-        </aside>
 
+            {notifVisible && (
+            <div className='w-[27rem] h-fit bg-white absolute top-[22rem] ml-60 rounded-md z-10 shadow-lg p-4'>
+                <p className='text-gray-400 px-2 py-1 text-sm'>Notification Details</p>
+                <div className="space-y-2">
+                {notifVal.map((notification, index) => (
+                    <div key={index} className='flex items-center gap-x-3 px-2 py-2 hover:bg-[rgb(170,183,183)]/75 cursor-pointer rounded-sm'>
+                    <div className="border border-gray-400 p-1 rounded-md">
+                        <RiNotification4Fill size={18} color='#1a2d42' />
+                    </div>
+                    <div>
+                        <p className="text-sm">{notification.message}</p>
+                        <p className="text-xs text-gray-500">
+                        {new Date(notification.created_at).toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric',
+                        })} at {new Date(notification.created_at).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
+                        </p>
+                    </div>
+                    </div>
+                ))}
+                </div>
+            </div>
+            )}
+        </aside>
 
         {isOpen &&
             <div className='flex flex-col justify-center items-center w-screen h-screen bg-black/50 absolute z-50'>
