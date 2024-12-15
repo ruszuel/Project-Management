@@ -50,3 +50,14 @@ class Tasks(models.Model):
     class Meta:
         db_table = 'tasks'
         managed = False
+
+class Notification(models.Model):
+    notification_id = models.AutoField(primary_key=True)
+    member = models.ForeignKey(Members, on_delete=models.CASCADE, related_name="notifications")
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'notifications'
+        managed = False
