@@ -12,12 +12,20 @@
   "dependencies": {
     "@remixicon/react": "^4.5.0",
     "axios": "^1.7.8",
+    "chart.js": "^4.4.7",
     "formik": "^2.4.6",
+    "gantt-task-react": "^0.3.9",
+    "gantt-task-react-pro": "^0.1.1",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.0.1",
+
+    "react-virtual-gantt": "^0.1.2",
+
     "react-toastify": "^10.0.6",
     "sonner": "^1.7.1",
+
     "yup": "^1.4.0"
   },
   "devDependencies": {

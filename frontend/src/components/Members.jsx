@@ -119,7 +119,7 @@ const Members = () => {
           </div>
         </div>
         <div className="rounded-md">
-          <table className="w-full border-collapse border border-gray-400 rounded-md">
+          <table className="w-full border-collapse border border-gray-400 rounded-lg">
             <thead className="">
               <tr className='text-sm'>
                 <th className="border border-gray-400 px-4 py-2">Firstname</th>
@@ -159,7 +159,7 @@ const Members = () => {
               onSubmit={async (val, action) => {
                 checkMember()
                 const data = {
-                  project: project,
+                  project: project.project_id,
                   manager: managers.manager_id,
                   firstname: val.firstname,
                   lastname: val.lastname,
