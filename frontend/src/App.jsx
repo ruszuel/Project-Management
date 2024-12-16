@@ -9,6 +9,7 @@ import Layout from './Layout'
 import Members from './components/Members'
 import Profile from './components/Profile'
 import Task from './components/Task'
+import Reports from './components/Reports'
 import ProjectSchedule from './components/ProjectSchedule'
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path='/members' element={<Members/>}/>
             <Route path='/profile' element={<Profile/>}/>
             <Route path='/task' element={<Task/>}/>
+            <Route path='/reports' element={<Reports/>}/>
             <Route path ='/projectschedule' element={<ProjectSchedule/>}/>
           </Route>
         </Route>

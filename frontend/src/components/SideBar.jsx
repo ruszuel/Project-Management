@@ -180,7 +180,11 @@ const SideBar = () => {
               item={"Gantt Chart"}
               onClick={() => navigate("/projectschedule")}
             />
-            <SidebarItem icon={"RiFileChartLine"} item={"Generate Reports"} />
+            <SidebarItem 
+              icon={"RiFileChartLine"} 
+              item={"Generate Reports"}
+               onClick={() => navigate("/reports")}
+            />
             {data.role !== 'manager' && (
                 <SidebarItem
                     icon={'RiNotification2Line'}
