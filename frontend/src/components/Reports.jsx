@@ -4,11 +4,17 @@ import axios from 'axios';
 import { Toaster } from 'sonner';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import DateErrorModal from './DateErrorModal'; 
+import { useTask } from '../Context';
 
 const Reports = () => {
+  const { project, editClick } = useTask()
   const [taskData, setTaskData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [toggleDropdown, setToggleDropdown] = useState({});
+  const [dateError, setDateError] = useState(false);
+  const [dateErrorMessage, setDateErrorMessage] = useState('');
+
   const [filters, setFilters] = useState({
     status: '',
     assigned: '',
@@ -21,13 +27,13 @@ const Reports = () => {
 
   const statuses = ['Ongoing', 'Not started', 'Completed', 'Pending'];
   const priorities = ['Low', 'Medium', 'High', 'Very High'];
-  
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/tasks');
+        const res = await axios.post('http://127.0.0.1:8000/api/tasks', { project: project})
         setTaskData(res.data);
-        setFilteredData(res.data);
+        setFilteredData(res.data); 
       } catch (err) {
         console.error(err);
       }
@@ -50,41 +56,106 @@ const Reports = () => {
     setToggleDropdown((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const applyFilters = () => {
-    const filtered = taskData.filter((task) => {
-      const { status, assigned, priority, sprint, startDate, endDate } = filters;
-
-      const matchesStatus = status ? task.status === status : true;
-      const matchesAssigned = assigned ? task.assigned === assigned : true;
-      const matchesPriority = priority ? task.priority === priority : true;
-      const matchesSprint = sprint ? task.sprint === Number(sprint) : true;
-      const matchesStartDate = startDate ? new Date(task.starting_date) >= new Date(startDate) : true;
-      const matchesEndDate = endDate ? new Date(task.deadline) <= new Date(endDate) : true;
-
-      return matchesStatus && matchesAssigned && matchesPriority && matchesSprint && matchesStartDate && matchesEndDate;
-    });
-
-    setFilteredData(filtered);
+  const handleCloseDateErrorModal = () => {
+    setDateError(false);
   };
+
+  const applyFilters = async () => {
+    if (filters.startDate && filters.endDate) {
+      if (new Date(filters.startDate) > new Date(filters.endDate)) {
+        setDateError(true);
+        setDateErrorMessage('Start date cannot be later than end date.');
+        return;
+      }
+
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/api/filter_tasks', filters);
+        setFilteredData(response.data);
+      } catch (err) {
+        console.error("Error filtering tasks:", err);
+      }
+    } else if (filters.startDate || filters.endDate) {
+      setDateError(true);
+      setDateErrorMessage('Both start date and end date are required.');
+    } else {
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/api/filter_tasks', filters);
+        setFilteredData(response.data);
+      } catch (err) {
+        console.error("Error filtering tasks:", err);
+      }
+    }
+  };
+  
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    doc.text('Task Report', 14, 10);
+  
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("ProjectSync", 14, 15);
+
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(200); 
+    doc.line(14, 20, 196, 20);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "normal");
+    doc.text("Task Report", doc.internal.pageSize.width / 2, 30, { align: "center" });
+    doc.setFontSize(10);
+    doc.text("Detailed report of the Project Task", doc.internal.pageSize.width / 2, 35, { align: "center" });
+  
+  
     doc.autoTable({
-      head: [['Task', 'Feature', 'Status', 'Assigned', 'Sprint', 'Priority', 'Start Date', 'Deadline']],
+      startY: 40,
+      head: [["Task", "Feature", "Status", "Assigned", "Sprint", "Priority", "Start Date", "Deadline"]],
       body: filteredData.map((task, index) => [
         index + 1,
-        task.feature,
-        task.status,
-        task.assigned,
-        task.sprint,
-        task.priority,
-        task.starting_date,
-        task.deadline,
+        task.feature || "",
+        task.status || "",
+        task.assigned || "",
+        task.sprint || "",
+        task.priority || "",
+        task.starting_date || "",
+        task.deadline || "",
       ]),
+      styles: {
+        font: "helvetica",
+        fontSize: 10,
+        cellPadding: 2,
+        textColor: [0, 0, 0], 
+        lineWidth: 0,
+      },
+      headStyles: {
+        fillColor: [0, 0, 68], 
+        textColor: [255, 255, 255], 
+        fontStyle: "bold",
+        lineWidth: 0, 
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 240], 
+      },
+      theme: "plain", 
+      tableLineWidth: 0, 
+      horizontalLineWidth: () => 0, 
+      verticalLineWidth: () => 0,
     });
-    doc.save('Task_Report.pdf');
+
+    const username = JSON.parse(localStorage.getItem('user'))
+    const timestamp = new Date().toLocaleString(); 
+    const pageNumber = doc.internal.getNumberOfPages();
+  
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+  
+    doc.text(`Generated by: ${username.firstname + ' ' +username.lastname}`, 14, doc.internal.pageSize.height - 15);
+    doc.text(`Generated date: ${timestamp}`, 14, doc.internal.pageSize.height - 10);
+  
+    doc.text(`Page ${pageNumber} of ${pageNumber}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, { align: "right" });
+  
+    doc.save("ProjectSync_Task_Report.pdf");
   };
+  
+  
 
   const handleFilterChange = (key, value) => {
     setFilters((prevFilters) => ({
@@ -95,17 +166,19 @@ const Reports = () => {
 
   return (
     <div className='flex w-full h-screen p-5 font-poppins bg-gray-300 relative'>
-        <Toaster richColors position="top-right" duration={3000} toastOptions={{
-                className: 'text-base'
-            }}/>
+        <DateErrorModal 
+                isOpen={dateError} 
+                onClose={handleCloseDateErrorModal} 
+                message={dateErrorMessage} 
+            />
+          
             <div className='flex-1 bg-white rounded-lg shadow-md p-10 py-14 h-full gap-10 flex flex-col'>
                 <div className="relative flex justify-between items-center">
                     <div>
-                        <p className="font-semibold text-2xl">Welcome back!</p>
-                        <p className="text-gray-400 text-sm">Here's a list of the tasks for the project!</p>
+                        <p className="font-semibold text-2xl">Generate Task Reports</p>
+                        <p className="text-gray-400 text-sm">Filter and export a detailed report of project tasks.</p>
                     </div>
 
-                    {/* Export Button positioned at the top right */}
                     <div className="absolute right-5 top-0">
                         <button
                         className="export-pdf-btn py-2 px-5 bg-blue-950 text-white rounded-md hover:bg-blue-900 focus:outline-none"
@@ -122,42 +195,66 @@ const Reports = () => {
                             onClick={() => handleToggleDropdown('status')}
                             className="w-40 py-2 px-3 text-left bg-white rounded-l-md border border-gray-300 hover:bg-gray-300 focus:outline-none relative text-sm"
                         >
-                            Status
+                            {filters.status || 'Status'}
                             <span className="absolute right-2 bottom-2">
                             {toggleDropdown.status ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                             </span>
                         </button>
                         {toggleDropdown.status && (
-                            <ul className="dropdown-menu bg-white shadow-lg mt-1 rounded-md w-40 absolute z-10 top-full left-0">
+                        <ul className="dropdown-menu bg-white shadow-lg mt-1 rounded-md w-40 absolute z-10 top-full left-0">
+                            <li
+                            onClick={() => {
+                                handleFilterChange('status', '');
+                                handleToggleDropdown('status');
+                            }}
+                            className="px-3 py-1 cursor-pointer hover:bg-gray-100 text-sm"
+                            >
+                            All Statuses
+                            </li>
                             {statuses.map((status) => (
-                                <li
+                            <li
                                 key={status}
-                                onClick={() => handleFilterChange('status', status)}
+                                onClick={() => {
+                                handleFilterChange('status', status);
+                                handleToggleDropdown('status');
+                                }}
                                 className="px-3 py-1 cursor-pointer hover:bg-gray-100 text-sm"
-                                >
+                            >
                                 {status}
-                                </li>
+                            </li>
                             ))}
-                            </ul>
+                        </ul>
                         )}
-                        </div>
 
+                     </div>
                         <div className="filter-dropdown relative">
                         <button
                             onClick={() => handleToggleDropdown('assigned')}
                             className="w-40 py-2 px-3 text-left bg-white border border-gray-300 hover:bg-gray-300 focus:outline-none relative text-sm"
                         >
-                            Assigned
+                            {filters.assigned || 'Assigned'}
                             <span className="absolute right-2 bottom-2">
                             {toggleDropdown.assigned ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                             </span>
                         </button>
                         {toggleDropdown.assigned && (
                             <ul className="dropdown-menu bg-white shadow-lg mt-1 rounded-md w-40 absolute z-10 top-full left-0">
+                            <li
+                                onClick={() => {
+                                handleFilterChange('assigned', '');
+                                handleToggleDropdown('assigned');
+                                }}
+                                className="px-3 py-1 cursor-pointer hover:bg-gray-100 text-sm"
+                            >
+                                All Members
+                            </li>
                             {membersData.map((member) => (
                                 <li
                                 key={member.id}
-                                onClick={() => handleFilterChange('assigned', member.name)}
+                                onClick={() => {
+                                    handleFilterChange('assigned', member.name);
+                                    handleToggleDropdown('assigned');
+                                }}
                                 className="px-3 py-1 cursor-pointer hover:bg-gray-100 text-sm"
                                 >
                                 {member.name}
@@ -172,17 +269,29 @@ const Reports = () => {
                             onClick={() => handleToggleDropdown('priority')}
                             className="w-40 py-2 px-3 text-left bg-white rounded-r-md border border-gray-300 hover:bg-gray-300 focus:outline-none relative text-sm"
                         >
-                            Priority
+                            {filters.priority || 'Priority'}
                             <span className="absolute right-2 bottom-2">
                             {toggleDropdown.priority ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                             </span>
                         </button>
                         {toggleDropdown.priority && (
                             <ul className="dropdown-menu bg-white shadow-lg mt-1 rounded-md w-40 absolute z-10 top-full left-0">
+                            <li
+                                onClick={() => {
+                                handleFilterChange('priority', '');
+                                handleToggleDropdown('priority');
+                                }}
+                                className="px-3 py-1 cursor-pointer hover:bg-gray-100 text-sm"
+                            >
+                                All Priorities
+                            </li>
                             {priorities.map((priority) => (
                                 <li
                                 key={priority}
-                                onClick={() => handleFilterChange('priority', priority)}
+                                onClick={() => {
+                                    handleFilterChange('priority', priority);
+                                    handleToggleDropdown('priority');
+                                }}
                                 className="px-3 py-1 cursor-pointer hover:bg-gray-100 text-sm"
                                 >
                                 {priority}
@@ -192,7 +301,6 @@ const Reports = () => {
                         )}
                         </div>
 
-                    {/* Sprint Filter */}
                     <div className="filter-dropdown">
                         <input
                             type="number"
@@ -206,7 +314,6 @@ const Reports = () => {
                     </div>
 
                     <div className="filter-date flex items-center text-sm">
-                        {/* Start Date Input */}
                         <input
                             type="date"
                             id="startDate"
@@ -216,7 +323,6 @@ const Reports = () => {
                             onChange={(e) => handleFilterChange('startDate', e.target.value)}
                         />
                         <span className="mx-2 text-gray-500">to</span>
-                        {/* End Date Input */}
                         <input
                             type="date"
                             id="endDate"
@@ -227,7 +333,6 @@ const Reports = () => {
                         />
                     </div>
 
-                    {/* Apply Filters Button */}
                     <button
                         onClick={applyFilters}
                         className="w-48 mt-0 py-2 px-4 bg-blue-950 text-white font-normal rounded-md hover:bg-blue-900 focus:outline-none text-sm"
@@ -240,7 +345,6 @@ const Reports = () => {
                     <table className="min-w-full table-auto">
                         <thead>
                         <tr className="bg-gray-100">
-                            <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600">#</th>
                             <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600">Task</th>
                             <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600">Feature</th>
                             <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600">Status</th>

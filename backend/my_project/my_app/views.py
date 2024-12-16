@@ -8,6 +8,9 @@ from .models import *
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from rest_framework.decorators import api_view
+from django.contrib.auth.decorators import login_required
+from datetime import datetime
 
 # Create your views here.
 def home(req):
@@ -569,3 +572,69 @@ def get_notifications(req, username):
     
     except Members.DoesNotExist:
         return Response({"error": "Member not found"}, status=404)
+
+
+
+@api_view(['POST'])
+def filter_tasks(req):
+    data = req.data
+    try:
+        start_date = data.get('start_date', None)
+        end_date = data.get('end_date', None)
+        project_id = data.get('project_id', None)
+        assigned_member = data.get('assigned', None)
+        status = data.get('status', None)
+        priority = data.get('priority', None)
+        sprint = data.get('sprint', None)  # Get sprint filter if provided
+        
+        tasks = Tasks.objects.all()
+        
+        if project_id:
+            tasks = tasks.filter(project_id=project_id)
+        
+        if assigned_member:
+            tasks = tasks.filter(assigned=assigned_member)
+        
+        if status:
+            tasks = tasks.filter(status=status)
+        
+        if priority:
+            tasks = tasks.filter(priority=priority)
+        
+        if sprint:  # Add sprint filter
+            tasks = tasks.filter(sprint=sprint)
+        
+        if start_date and end_date:
+            tasks = tasks.filter(starting_date__gte=start_date, deadline__lte=end_date)
+        
+        task_list = tasks.values('task_id', 'feature', 'status', 'assigned', 'sprint', 'priority', 'starting_date', 'deadline')
+        return Response(list(task_list), status=200)
+    
+    except Exception as e:
+        print(e)
+        return Response({"error": str(e)}, status=400)
+
+
+@api_view(['POST'])
+def generate_report(req):
+    user = req.user
+    full_name = f"{user.first_name} {user.last_name}"  
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    try:
+        manager = Project.objects.get(username=user.username)
+        role = 'Manager'
+    except Project.DoesNotExist:
+
+        try:
+            member = Members.objects.get(username=user.username)
+            role = 'Member'
+        except Members.DoesNotExist:
+            role = 'Unknown'
+
+    return Response({
+        'full_name': full_name,
+        'role': role,
+        'timestamp': timestamp,
+    })
