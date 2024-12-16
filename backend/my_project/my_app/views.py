@@ -205,7 +205,7 @@ def retrieve_tasks(req):
     data = req.data
 
     try:
-        task = Tasks.objects.filter(project=data.get('project')).values('task_id', 'feature', 'status', 'assigned', 'sprint', 'priority', 'deadline')
+        task = Tasks.objects.filter(project=data.get('project')).values('task_id', 'feature', 'status', 'assigned', 'sprint', 'priority', 'deadline', 'starting_date')
         return Response(list(task), status=200)
     except Exception as e:
         print(e)
@@ -216,7 +216,7 @@ def retrieve_project(req):
     data = req.data
    
     try:
-        projects = Proj.objects.filter(manager = data.get('manager')).values('project_id', 'project_title')
+        projects = Proj.objects.filter(manager = data.get('manager')).values('project_id', 'project_title', 'project_description')
         return Response(list(projects), status=200)
     except Exception as e:
         print(e)
@@ -229,7 +229,8 @@ def create_project(req):
     try:
         proj = Proj(
             project_title = data.get('title'),
-            manager_id = data.get('manager')
+            manager_id = data.get('manager'),
+            project_description= data.get('description')
         )
         proj.save()
         return Response(status=201)
@@ -242,7 +243,7 @@ def retrieve_members(req):
     data = req.data 
 
     try:
-        members = Members.objects.filter(project = data.get('project')).values()
+        members = Members.objects.filter(project = data.get('project_id')).values()
         return Response(list(members), status=200)
     except Exception as e:
         print(e)
@@ -289,7 +290,9 @@ def create_task(req):
             assigned = data.get('assigned'),
             sprint = data.get('sprint'),
             priority = data.get('priority'),
-            deadline = data.get('deadline')
+            deadline = data.get('deadline'),
+            starting_date = data.get('starting_date')
+
         )
 
         task.save()
@@ -468,3 +471,47 @@ def del_memss(req):
     except Exception as e:
         print(e)
         return Response({'error': str(e)}, status=400)
+    
+@api_view(['POST'])
+def update_project_description(req):
+    data = req.data 
+
+    try:
+        project = Proj.objects.get(project_id=data.get('project_id'))
+        project.project_description = data.get('project_description')
+        project.save()
+        return Response (status=200)
+
+    except Exception as e:
+        print(e)
+        return Response(status=404)
+    
+    
+@api_view(['POST'])
+def update_task_date_gant(req):
+    data = req.data
+
+    try:
+        task = Tasks.objects.get(task_id=data.get('task_id'))
+        task.feature = data.get('feature')
+        task.starting_date = data.get('starting_date')
+        task.deadline = data.get('deadline')
+
+        task.save()
+
+
+    except Exception as e:
+        print(e)
+        return Response(status=404)  
+
+@api_view(['POST']) 
+def retrieve_project_description(req):
+    data = req.data
+    try:
+        project = Proj.objects.get(project_id=data.get('project_id'))
+        return Response({"project_description": project.project_description}, status=200)
+    except Proj.DoesNotExist:
+        return Response({"error": "Project not found"}, status=404)
+    except Exception as e:
+        print(e)
+        return Response({"error": str(e)}, status=500)

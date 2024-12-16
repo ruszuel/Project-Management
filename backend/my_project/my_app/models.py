@@ -16,6 +16,7 @@ class Project(models.Model):
 
 class Proj(models.Model):
     project_id = models.AutoField(primary_key=True, null=False)
+    project_description = models.TextField(null=True, blank=True)
     project_title = models.CharField(max_length=100, null=False)
     manager = models.ForeignKey(Project, on_delete=models.CASCADE)
     
@@ -45,6 +46,7 @@ class Tasks(models.Model):
     assigned = models.CharField(max_length=255)
     sprint = models.IntegerField()
     priority = models.CharField(max_length=255)
+    starting_date = models.DateField()
     deadline = models.DateField()
 
     class Meta:
