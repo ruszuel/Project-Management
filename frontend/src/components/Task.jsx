@@ -32,7 +32,7 @@ const Task = () => {
 
     const retrieveData = async () => {
         try {
-            const res = await axios.post('http://127.0.0.1:8000/api/tasks', { project: project })
+            const res = await axios.post('http://127.0.0.1:8000/api/tasks', { project: project})
             setTaskData(res.data)
         } catch (err) {
             console.log(err)
@@ -59,7 +59,7 @@ const Task = () => {
 
     useEffect(() => {
         const checkMember = async () => {
-            const users = await axios.post('http://127.0.0.1:8000/api/retrieve_mem_proj', { projectID: project })
+            const users = await axios.post('http://127.0.0.1:8000/api/retrieve_mem_proj', { projectID: project})
             setMembersData(users.data)
         }
         checkMember()
@@ -83,7 +83,8 @@ const Task = () => {
         priority: yup.string().required(),
         sprint: yup.number().required(),
         deadline: yup.date().required(),
-        assign: yup.string().required()
+        assign: yup.string().required(),
+        starting_date: yup.string().required(),
     })
 
     const notify = () => toast.success("Added successfully");
@@ -105,32 +106,34 @@ const Task = () => {
                         <button className={`bg-[#1A2D42] text-white text-sm p-2 rounded-md flex items-center gap-1 hover:bg-[#1A2D42]/50 ${data.role === 'manager' ? '' : 'hidden'}`} onClick={() => {project && setNewTask(true)}}> <RiAddCircleLine size={18} color='white' /> Add task</button>
                     </div>
 
-                    <div className="rounded-md">
-                        <table className="w-full border-collapse border border-gray-400 rounded-md">
-                            <thead className="">
+                    <div className="overflow-hidden rounded-md overflow-y-auto h-[70vh]">
+                    <table className="w-full border-collapse bg-gray-100 ">
+                        <thead className="bg-gray-200 ">
                                 <tr className='text-sm'>
-                                    <th className="border border-gray-400 px-4 py-2">Task</th>
-                                    <th className="border border-gray-400 px-4 py-2">Feature</th>
-                                    <th className="border border-gray-400 px-4 py-2">Status</th>
-                                    <th className="border border-gray-400 px-4 py-2">Assigned</th>
-                                    <th className="border border-gray-400 px-4 py-2">Sprint</th>
-                                    <th className="border border-gray-400 px-4 py-2">Priority</th>
-                                    <th className="border border-gray-400 px-4 py-2">Deadline</th>
-                                    <th className="border border-gray-400 px-4 py-2">Actions</th>
+                                    <th className="px-4 py-2">Task</th>
+                                    <th className="px-4 py-2">Feature</th>
+                                    <th className="px-4 py-2">Status</th>
+                                    <th className="px-4 py-2">Assigned</th>
+                                    <th className="px-4 py-2">Sprint</th>
+                                    <th className="px-4 py-2">Priority</th>
+                                    <th className="px-4 py-2">Starting Date</th>
+                                    <th className="px-4 py-2">Deadline</th>
+                                    <th className="px-4 py-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className='text-center'>
-
+ 
                                 {taskData.map((task, index) => (
-                                    <tr className='text-sm' key={task.task_id}>
-                                        <td className="border border-gray-400 px-4 py-2">{index + 1}</td>
-                                        <td className="border border-gray-400 px-4 py-2">{task.feature}</td>
-                                        <td className="border border-gray-400 px-4 py-2">{task.status}</td>
-                                        <td className="border border-gray-400 px-4 py-2">{task.assigned}</td>
-                                        <td className="border border-gray-400 px-4 py-2">{task.sprint}</td>
-                                        <td className="border border-gray-400 px-4 py-2">{task.priority}</td>
-                                        <td className="border border-gray-400 px-4 py-2">{task.deadline}</td>
-                                        <td className="border border-gray-400 px-4 py-2" onClick={() => { setDelProjID(project); setDelTaskID(task.task_id) }}>
+                                    <tr className='text-sm ' key={task.task_id}>
+                                        <td className="px-4 py-2">{index + 1}</td>
+                                        <td className="px-4 py-2">{task.feature}</td>
+                                        <td className="px-4 py-2">{task.status}</td>
+                                        <td className="px-4 py-2">{task.assigned}</td>
+                                        <td className="px-4 py-2">{task.sprint}</td>
+                                        <td className="px-4 py-2">{task.priority}</td>
+                                        <td className="px-4 py-2">{task.starting_date}</td>
+                                        <td className="px-4 py-2">{task.deadline}</td>
+                                        <td className="px-4 py-2" onClick={() => { setDelProjID(project.project_id); setDelTaskID(task.task_id) }}>
                                             <TaskAction click={() => onDelete()} edit={task.task_id} />
                                         </td>
                                     </tr>
@@ -162,6 +165,7 @@ const Task = () => {
                                         assigned: val.assign,
                                         sprint: val.sprint,
                                         priority: val.priority,
+                                        starting_date: val.starting_date,
                                         deadline: val.deadline
                                     }
 
@@ -237,10 +241,17 @@ const Task = () => {
                                                 </div>
                                                 <div className='w-full'>
                                                     <div className='flex justify-between'>
+                                                        <p className='font-semibold text-sm'>Starting Date</p>
+                                                        <p className='text-red-400 text-sm justify-self-end'>{props.errors.starting_date && props.touched.starting_date && props.errors.starting_date}</p>
+                                                    </div>
+                                                    <input type='date' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm disabled:text-gray-400' onChange={props.handleChange('starting_date')} onBlur={props.handleBlur('starting_date')}/>
+                                                </div>
+                                                <div className='w-full'>
+                                                    <div className='flex justify-between'>
                                                         <p className='font-semibold text-sm'>Deadline</p>
                                                         <p className='text-red-400 text-sm justify-self-end'>{props.errors.deadline && props.touched.deadline && props.errors.deadline}</p>
                                                     </div>
-                                                    <input type='date' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm disabled:text-gray-400' onChange={props.handleChange('deadline')} onBlur={props.handleBlur('deadline')} min={today} />
+                                                    <input type='date' className='w-full p-3 border border-gray-400 rounded-md focus:outline-gray-400 text-sm disabled:text-gray-400' onChange={props.handleChange('deadline')} onBlur={props.handleBlur('deadline')}/>
                                                 </div>
                                             </div>
 

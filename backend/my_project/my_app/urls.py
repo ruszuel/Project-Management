@@ -29,5 +29,8 @@ urlpatterns = [
     path('api/add_member',add_members),
     path('api/retrieve_all_mem', retrieve_all_members),
     path('api/retrieve_mem_proj', get_mem_proj),
-     path('api/del_member', del_memss),
+    path('api/del_member', del_memss),
+    path('api/update_description', update_project_description),
+    path('api/update_date_gant', update_task_date_gant),
+    path('api/retrieve_project_description', retrieve_project_description)
 ]

@@ -118,15 +118,15 @@ const Members = () => {
             <button className={`bg-[#1A2D42] text-white text-sm p-2 rounded-md flex items-center gap-1 hover:bg-[#1A2D42]/50 ${data.role === 'manager' ? '' : 'hidden'}`} onClick={() => { project && setToggleModal(true) }}> <RiAddCircleLine size={18} color='white' /> Create member</button>
           </div>
         </div>
-        <div className="rounded-md">
-          <table className="w-full border-collapse border border-gray-400 rounded-md">
-            <thead className="">
+        <div className="overflow-hidden rounded-md overflow-y-auto h-[70vh]">
+          <table className="w-full border-collapse bg-gray-100">
+            <thead className="bg-gray-200">
               <tr className='text-sm'>
-                <th className="border border-gray-400 px-4 py-2">Firstname</th>
-                <th className="border border-gray-400 px-4 py-2">Lastname</th>
-                <th className="border border-gray-400 px-4 py-2">Username</th>
-                <th className="border border-gray-400 px-4 py-2">Email</th>
-                {data.role === 'manager' ? <th className="border border-gray-400 px-4 py-2">Actions</th> : ''}
+                <th className="px-4 py-2">Firstname</th>
+                <th className="px-4 py-2">Lastname</th>
+                <th className="px-4 py-2">Username</th>
+                <th className="px-4 py-2">Email</th>
+                {data.role === 'manager' ? <th className="px-4 py-2">Actions</th> : ''}
 
               </tr>
             </thead>
@@ -134,18 +134,19 @@ const Members = () => {
 
               {members.map((mem, index) => (
                 <tr className='text-sm' key={index}>
-                  <td className="border border-gray-400 px-4 py-2">{mem.firstname}</td>
-                  <td className="border border-gray-400 px-4 py-2">{mem.lastname}</td>
-                  <td className="border border-gray-400 px-4 py-2">{mem.username}</td>
-                  <td className="border border-gray-400 px-4 py-2">{mem.email}</td>
+                  <td className="px-4 py-2">{mem.firstname}</td>
+                  <td className="px-4 py-2">{mem.lastname}</td>
+                  <td className="px-4 py-2">{mem.username}</td>
+                  <td className="px-4 py-2">{mem.email}</td>
                   {data.role === 'manager' ?
-                    <td className="border border-gray-400 px-4 py-2" onClick={() => { setDelMemID(mem.username); setDelProjID(project) }}><MemberAction click={() => onDelete()} del={() => permadDelete()} /></td> : ''
+                    <td className="px-4 py-2" onClick={() => { setDelMemID(mem.username); setDelProjID(project) }}><MemberAction click={() => onDelete()} del={() => permadDelete()} /></td> : ''
                   }
                 </tr>
               ))}
 
             </tbody>
           </table>
+          
         </div>
       </div>
 
