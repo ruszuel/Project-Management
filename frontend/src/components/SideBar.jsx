@@ -16,7 +16,6 @@ const SideBar = () => {
     const [valProj, setValProj] = useState('')
     const [projOpen, setProjOpen] = useState(false)
     const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
 
     const { logout, data } = useAuth()
     const { setProject, project } = useTask()
@@ -68,8 +67,7 @@ const SideBar = () => {
         } catch (error) {
             console.log(error)
         }
-    },[title,description])
-
+    }, [title])
 
     return (
         <div className='flex w-[16rem] h-screen font-poppins'>
@@ -96,25 +94,24 @@ const SideBar = () => {
                             <RiExpandUpDownLine size={18} color='black' className='absolute right-3' />
                         </div>
                     </div>
-                </div>
-                <div className='w-full'>
-                    {/* pages */}
-                    <SidebarItem icon={'RiDashboardLine'} item={'Dashboard'} onClick={() =>navigate('/home')}/>
-                    <SidebarItem icon={'RiGroupLine'} item={'Members'} onClick={() => navigate('/members')}/>
-                    <SidebarItem icon={'RiListCheck3'} item={'Tasks'} onClick={() => navigate('/task')}/>
-                    <SidebarItem icon={'RiCalendarEventLine'} item={'Gantt Chart'} onClick={() => navigate('/projectschedule')}/>
-                    <SidebarItem icon={'RiFileChartLine'} item={'Generate Reports'}/>
-                    <SidebarItem icon={'RiCommandLine'} item={'Placeholder'}/>
-                </div>
-            </section>
-            <div className='px-5 w-full justify-end flex flex-col'>
-                {/* profile */}
-                <div className='flex justify-between items-center rounded-md bg-[#coc8ca] shadow-lg hover:bg-[#aab7b7] p-2 cursor-pointer' onClick={() => visible ? setVisible(false) : setVisible(true)}>
-                    <div className='flex gap-4 items-center'>
-                        <RiUser3Line size={22} color='black'/>
-                        <div>
-                            <p className='text-sm'>{data.username}</p>
-                            <p className='text-xs'>{data.email}</p>
+                    <div className='w-full'>
+                        {/* pages */}
+                        <SidebarItem icon={'RiDashboardHorizontalLine'} item={'Project'} onClick={() => navigate('/home')} />
+                        <SidebarItem icon={'RiGroupLine'} item={'Members'} onClick={() => navigate('/members')} />
+                        <SidebarItem icon={'RiListCheck3'} item={'Tasks'} onClick={() => navigate('/task')} />
+                        <SidebarItem icon={'RiFileChartLine'} item={'Generate Reports'} />
+                        <SidebarItem icon={'RiCommandLine'} item={'Placeholder'} />
+                    </div>
+                </section>
+                <div className='px-5 w-full justify-end flex flex-col'>
+                    {/* profile */}
+                    <div className='flex justify-between items-center rounded-md bg-[#coc8ca] shadow-lg hover:bg-[#aab7b7] p-2 cursor-pointer' onClick={() => visible ? setVisible(false) : setVisible(true)}>
+                        <div className='flex gap-4 items-center'>
+                            <RiUser3Line size={22} color='black' />
+                            <div>
+                                <p className='text-sm'>{data.username}</p>
+                                <p className='text-xs'>{data.email}</p>
+                            </div>
                         </div>
                         <RiExpandUpDownLine size={18} color='black' className='justify-self-end' />
                     </div>
