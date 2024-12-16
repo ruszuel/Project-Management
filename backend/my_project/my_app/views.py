@@ -243,8 +243,7 @@ def retrieve_members(req):
     data = req.data 
 
     try:
-        members = Members.objects.filter(manager = data.get('manager'), project = data.get('project')).values()
-        print(list(members))
+        members = Members.objects.filter(project = data.get('project')).values()
         return Response(list(members), status=200)
     except Exception as e:
         print(e)
@@ -266,8 +265,14 @@ def create_members(req):
             email = data.get('email'),
             password = hashed_pass
         )
-        member.save()
 
+        junction = Member_Project(
+           username = member,
+           project_id = data.get('project'),
+        )
+
+        member.save()
+        junction.save()
         return Response(status=200)
     except Exception as e:
         print(e)
@@ -316,8 +321,12 @@ def delete_member(req):
     data = req.data 
 
     try:
-        task = Members.objects.get(project_id = data.get('projID'), member_id = data.get('memID'))
+        task = Members.objects.get(username = data.get('username'))
         task.delete()
+        del_mem = Member_Project.objects.filter(username=data.get('username'), project_id=data.get('projID'))
+        del_mem.delete()
+        del_task = Tasks.objects.filter(assigned = data.get('username'), project_id = data.get('projID'))
+        del_task.delete()
         return Response(status=200)
     except Exception as e:
         messages.error(req, str(e))
@@ -330,10 +339,57 @@ def retrieve_member_project(req):
     data = req.data
    
     try:
-        projects = Proj.objects.filter(project_id = data.get('projID')).values('manager_id', 'project_title')
-        return Response(list(projects), status=200)
+        projects = Member_Project.objects.filter(username__username = data.get('username')).select_related('project')
+        proj_list = [
+            {
+                'project_id': mem.project.project_id,
+                'project_title': mem.project.project_title,
+                'manager_id': mem.project.manager_id,
+            }
+            for mem in projects
+        ]
+        return Response(proj_list, status=200)
     except Exception as e:
         print(e)
+        return Response(status=404)
+
+@api_view(['POST'])
+def get_specific_task(req):
+    data = req.data 
+    try:
+        task = Tasks.objects.filter(task_id=data.get('taskID')).values()
+        return Response(list(task), status=200)
+    except Exception as e: 
+       print(e)
+       return Response(status=500)
+    
+
+@api_view(['POST'])
+def update_task(req):
+
+    data = req.data 
+    features = data.get('feature')
+    status = data.get('status')
+    priority = data.get('priority')
+    sprint = data.get('sprint')
+    deadline = data.get('deadline')
+    assigned = data.get('assigned')
+
+    try:
+        Tasks.objects.filter(task_id=data.get('taskID')).update(feature=features, status=status, priority=priority, sprint=sprint, deadline=deadline, assigned=assigned)
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=400)
+
+@api_view(['POST'])
+def get_member_task(req):
+    data = req.data
+
+    try:
+        task_data = Tasks.objects.filter(project_id = data.get('projID'), assigned=data.get('username')).values()
+        return Response(list(task_data), status=200)
+    except Exception as e:
         return Response(status=404)
     
 @api_view(['POST'])
@@ -368,3 +424,81 @@ def update_task_date_gant(req):
         return Response(status=404)  
         
         
+@api_view(['POST'])
+def update_indiv_task(req):
+
+    data = req.data 
+    status = data.get('status')
+
+    try:
+        Tasks.objects.filter(task_id=data.get('taskID')).update(status=status)
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=400)
+
+
+@api_view(['POST'])
+def add_members(req):
+    data = req.data 
+
+    try:
+        member = Members.objects.get(username=data.get('username'))
+        ass_mem = Member_Project(
+            username = member,
+            project_id = data.get('proj_id')
+        )
+        ass_mem.save()
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=400)
+
+@api_view(['POST'])
+def retrieve_all_members(req):
+    data = req.data
+
+    try:
+        all_members = Members.objects.filter(manager_id = data.get('manager')).values()
+        return Response(list(all_members), status=200)
+    except Exception as e:
+        print(e) 
+        Response(status=404)
+
+
+@api_view(['POST'])
+def get_mem_proj(req):
+
+    data = req.data 
+
+    try:
+        mems = Members.objects.filter( member_project__project_id = data.get('projectID')).select_related('project')
+        members_list = [
+            {
+                'firstname': mem.firstname,
+                'lastname': mem.lastname,
+                'email': mem.email,
+                'username': mem.username,
+            }
+            for mem in mems
+        ]
+        return Response(members_list, status=200)
+
+    except Exception as e:
+        print(e)
+        return Response({'error': str(e)}, status=400)
+    
+@api_view(['POST'])
+@csrf_exempt
+def del_memss(req):
+    data = req.data 
+
+    try:
+        del_mem = Member_Project.objects.filter(username=data.get('username'), project_id=data.get('projID'))
+        del_mem.delete()
+        del_task = Tasks.objects.filter(assigned = data.get('username'), project_id = data.get('projID'))
+        del_task.delete()
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return Response({'error': str(e)}, status=400)

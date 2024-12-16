@@ -8,7 +8,7 @@ urlpatterns = [
     path('api/submit', create_user),
     path('api/login', login),
     path('api/retrieve', retrieve_user),
-     path('api/retrieve_member', retrieve_member),
+    path('api/retrieve_member', retrieve_member),
     path('api/profile', retrieve_specific_user),
     path('api/change_pass', change_pass),
     path('api/update_profile', update_profile),
@@ -24,4 +24,12 @@ urlpatterns = [
     path('api/retrieve_member_project', retrieve_member_project),
     path('api/update_description', update_project_description),
     path('api/update_date_gant', update_task_date_gant)
+    path('api/member_task', get_specific_task),
+    path('api/update_task', update_task),
+    path('api/indiv_task', get_member_task),
+    path('api/update_indiv_task', update_indiv_task),
+    path('api/add_member',add_members),
+    path('api/retrieve_all_mem', retrieve_all_members),
+    path('api/retrieve_mem_proj', get_mem_proj),
+     path('api/del_member', del_memss),
 ]

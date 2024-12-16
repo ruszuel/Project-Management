@@ -52,3 +52,12 @@ class Tasks(models.Model):
     class Meta:
         db_table = 'tasks'
         managed = False
+
+class Member_Project(models.Model):
+    assigned_projects_id = models.AutoField(primary_key=True)
+    username = models.ForeignKey(Members,to_field='username', on_delete=models.CASCADE, db_column='username')
+    project = models.ForeignKey(Proj, on_delete=models.CASCADE, db_column='project_id')
+
+    class Meta:
+        db_table = 'member_projects'
+        managed = False

@@ -5,11 +5,11 @@ import axios from 'axios'
 import { Formik } from 'formik'
 import * as yup from 'yup'
 import TaskAction from '../reusable/TaskAction'
-import EditTask from '../reusable/EditTask'
-import DoughnutChart from '../reusable/DoughnutChart'
+import {Toaster, toast} from 'sonner'
+import 'react-toastify/dist/ReactToastify.css';
 
 const Task = () => {
-    const { project } = useTask()
+    const { project, editClick } = useTask()
     const { data } = useAuth()
     const [taskData, setTaskData] = useState([])
     const [newTask, setNewTask] = useState(false)
@@ -20,7 +20,7 @@ const Task = () => {
 
     const [statsVal, setStatsVal] = useState()
     const [prioVal, setPrioVal] = useState()
-    const [memberVal, setMemberVal] = useState()
+    const [memberVal, setMemberVal] = useState('')
 
     const [delProjID, setDelProjID] = useState('')
     const [delTaskID, setDelTaskID] = useState('')
@@ -39,13 +39,27 @@ const Task = () => {
         }
     }
 
+    const retrieveMemTask = async () => {
+        try {
+            const res = await axios.post('http://127.0.0.1:8000/api/indiv_task', { projID: project, username: managers.username })
+            setTaskData(res.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
-        retrieveData()
-    }, [project])
+        console.log(data.role, project)
+        if (data.role === 'manager') {
+            retrieveData()
+        } else if (data.role === 'member') {
+            retrieveMemTask()
+        }
+    }, [project, editClick])
 
     useEffect(() => {
         const checkMember = async () => {
-            const users = await axios.post('http://127.0.0.1:8000/api/members', { project: project.project_id, manager: managers.manager_id })
+            const users = await axios.post('http://127.0.0.1:8000/api/retrieve_mem_proj', { projectID: project })
             setMembersData(users.data)
         }
         checkMember()
@@ -56,6 +70,7 @@ const Task = () => {
             const res = await axios.post('http://127.0.0.1:8000/api/rm_task', { projID: delProjID, taskID: delTaskID })
             if (res && res.status === 200) {
                 retrieveData()
+                delToast()
             }
         } catch (error) {
             console.log(error)
@@ -72,22 +87,23 @@ const Task = () => {
         starting_date: yup.string().required()
     })
 
+    const notify = () => toast.success("Added successfully");
+    const delToast = () => toast.success('Deleted successfully')
+
     return (
         <div className='flex w-full h-screen p-5 font-poppins bg-gray-300 relative'>
+            <Toaster richColors position="top-right" duration={3000} toastOptions={{
+                className: 'text-base'
+            }}/>
             <div className='flex-1 bg-white rounded-lg shadow-md p-10 py-14 h-full gap-10 flex flex-col'>
                 <div>
                     <p className='font-semibold text-2xl'>Welcome back!</p>
                     <p className='text-gray-400'>Here's a list of the tasks for the project!</p>
                 </div>
-                <div className='flex flex-col items-center justify-center'>
-                    <div className="w-[100%] flex items-center justify-center">
-                        <DoughnutChart />
-                    </div>
-                </div>
-
+               
                 <div className='flex flex-col gap-4'>
                     <div className='flex justify-end'>
-                        <button className={`bg-[#1A2D42] text-white text-sm p-2 rounded-md flex items-center gap-1 hover:bg-[#1A2D42]/50 ${data.role === 'manager' ? '' : 'hidden'}`} onClick={() => { project && setNewTask(true) }}> <RiAddCircleLine size={18} color='white' /> Add task</button>
+                        <button className={`bg-[#1A2D42] text-white text-sm p-2 rounded-md flex items-center gap-1 hover:bg-[#1A2D42]/50 ${data.role === 'manager' ? '' : 'hidden'}`} onClick={() => {project && setNewTask(true)}}> <RiAddCircleLine size={18} color='white' /> Add task</button>
                     </div>
 
                     <div className="rounded-md">
@@ -118,7 +134,7 @@ const Task = () => {
                                         <td className="border border-gray-400 px-4 py-2">{task.starting_date}</td>
                                         <td className="border border-gray-400 px-4 py-2">{task.deadline}</td>
                                         <td className="border border-gray-400 px-4 py-2" onClick={() => { setDelProjID(project); setDelTaskID(task.task_id) }}>
-                                            <TaskAction click={() => onDelete()} edit={() => edit()} />
+                                            <TaskAction click={() => onDelete()} edit={task.task_id} />
                                         </td>
                                     </tr>
                                 ))}
@@ -158,6 +174,10 @@ const Task = () => {
                                         if (datass && datass.status === 200) {
                                             setNewTask(false)
                                             retrieveData()
+                                            notify()
+                                            setMemberVal('')
+                                            setPrioVal('')
+                                            setStatsVal('')
                                         }
                                     } catch (error) {
 

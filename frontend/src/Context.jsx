@@ -56,11 +56,12 @@ import React, {createContext, useState, useContext, useEffect} from 'react'
   }
   
 export const TaskProvider = ({children}) => {
-  
+  const [editClick, setEditClick] = useState(false)
   const [project, setProject] = useState('')
+  const [taskID, setTaskID] = useState('')
 
   return (
-    <TaskContext.Provider value={{project, setProject}}>
+    <TaskContext.Provider value={{project, setProject, editClick, setEditClick, taskID, setTaskID}}>
       {children}
     </TaskContext.Provider>
   )
