@@ -41,7 +41,7 @@ const Reports = () => {
 
     const fetchMembers = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/members');
+        const res = await axios.get('http://127.0.0.1:8000/api/members', {project_id: project});
         setMembersData(res.data);
       } catch (err) {
         console.error(err);
@@ -357,7 +357,7 @@ const Reports = () => {
                         </thead>
                         <tbody>
                         {filteredData.map((task, index) => (
-                            <tr key={task.id} className="border-t border-gray-200 hover:bg-gray-50">
+                            <tr key={index} className="border-t border-gray-200 hover:bg-gray-50">
                             <td className="py-3 px-4 text-sm text-gray-700">{index + 1}</td>
                             <td className="py-3 px-4 text-sm text-gray-700">{task.feature}</td>
                             <td className="py-3 px-4 text-sm text-gray-700">{task.status}</td>

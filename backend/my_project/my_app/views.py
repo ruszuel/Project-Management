@@ -301,7 +301,8 @@ def create_task(req):
             assigned=data.get('assigned'),
             sprint=data.get('sprint'),
             priority=data.get('priority'),
-            deadline=data.get('deadline')
+            deadline=data.get('deadline'),
+            starting_date = data.get('starting_date')
         )
         task.save()
 
