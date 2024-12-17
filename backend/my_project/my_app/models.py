@@ -61,3 +61,16 @@ class Member_Project(models.Model):
     class Meta:
         db_table = 'member_projects'
         managed = False
+
+
+class Notification(models.Model):
+    notification_id = models.AutoField(primary_key=True)
+    message = models.TextField()
+    recipient_member = models.ForeignKey(Members, on_delete=models.CASCADE, null=True, blank=True)
+    recipient_manager = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    notification_type = models.CharField(max_length=50) 
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'notifications'
+        managed = False

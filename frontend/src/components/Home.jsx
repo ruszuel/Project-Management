@@ -65,12 +65,12 @@ const Home = () => {
             ></textarea>
           </div>
           <div className='flex flex-row ml-auto p-4 gap-4'>
-            <button className={`bg-[#1A2D42] text-white text-sm p-3 rounded-md flex items-center' ${data.role === 'manager' ? '' : 'hidden'}`} onClick={handleEditToggle} >
+            <button className={`bg-[#1A2D42] text-white text-sm p-3 gap-1 rounded-md flex items-center' ${data.role === 'manager' ? '' : 'hidden'}`} onClick={handleEditToggle} >
               <RiEditLine size={18} color='white' />
               {isEditable ? "Save" : "Edit"}
             </button>
-            <button className={`bg-red-500 border-[#1A2D42] text-white text-sm p-3 rounded-md flex items-center' ${data.role === 'manager' ? '' : 'hidden'}`}>
-              <RiDeleteBinLine size={18} color='white' /> Delete
+            <button className={`bg-red-500 border-[#1A2D42] text-white text-sm p-3 gap-2 rounded-md flex items-center' ${data.role === 'manager' ? '' : 'hidden'}`}>
+              <RiDeleteBinLine size={18} color='white' /> Delete Project
             </button>
           </div>
         </div>

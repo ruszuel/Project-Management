@@ -32,5 +32,8 @@ urlpatterns = [
     path('api/del_member', del_memss),
     path('api/update_description', update_project_description),
     path('api/update_date_gant', update_task_date_gant),
-    path('api/retrieve_project_description', retrieve_project_description)
+    path('api/retrieve_project_description', retrieve_project_description),
+    path('api/notifications/<str:username>/', get_notifications, name='get_notifications'),
+    path('api/filter_tasks', filter_tasks),
+    path('api/generate_report/', generate_report, name='generate_report'), 
 ]
